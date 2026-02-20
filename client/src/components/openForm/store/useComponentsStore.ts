@@ -3,17 +3,16 @@ import type { FC } from "react";
 import type {FieldConfig} from "../types.ts";
 
 
-// CUSTOM fields can be a key-value object
 export type FieldComponents = {
-    NUMBER: FC<FieldConfig & { field?: any; form?: any }>;
-    TEXT: FC<FieldConfig & { field?: any; form?: any }>;
-    STRING: FC<FieldConfig & { field?: any; form?: any }>;
-    TEXTAREA: FC<FieldConfig & { field?: any; form?: any }>;
-    SELECT: FC<FieldConfig & { field?: any; form?: any }>;
-    DATE: FC<FieldConfig & { field?: any; form?: any }>;
-    BOOLEAN: FC<FieldConfig & { field?: any; form?: any }>;
-    CUSTOM: Record<string, FC<FieldConfig & { field?: any; form?: any }>>;
-    TABLE: FC<FieldConfig & { field?: any; form?: any }>;
+    NUMBER: FC<FieldConfig & { fieldId: string; form?: any }>;
+    TEXT: FC<FieldConfig & { fieldId: string; form?: any }>;
+    STRING: FC<FieldConfig & { fieldId: string;  form?: any }>;
+    TEXTAREA: FC<FieldConfig & { fieldId: string; form?: any }>;
+    SELECT: FC<FieldConfig & { fieldId: string; form?: any }>;
+    DATE: FC<FieldConfig & { fieldId: string; form?: any }>;
+    BOOLEAN: FC<FieldConfig & { fieldId: string; form?: any }>;
+    CUSTOM: Record<string, FC<FieldConfig & { fieldId: string;  form?: any }>>;
+    TABLE: FC<FieldConfig & { fieldId: string; form?: any }>;
 };
 
 export interface TComponentsStore {

@@ -5,7 +5,6 @@ import {Spinner} from "react-spinner-toolkit";
 interface CustomSelectProps extends Omit<FieldConfig, 'data' | 'value' | 'onChange'> {
     data?: SelectItem[];
     value?: string | number | null;
-    fieldId: string;
     onChange?: (value: string | number | null, option?: any) => void;
 }
 
@@ -14,7 +13,6 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
                                                        value = null,
                                                        onChange = () => {
                                                        },
-                                                       fieldId,
                                                        ...rest
                                                    }) => {
     const stringValue = value !== null && value !== undefined ? String(value) : null;

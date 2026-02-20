@@ -131,3 +131,17 @@ export type FieldComponents = {
     CUSTOM: Record<string, FC<FieldConfig<any>>>;
     TABLE: FC<FieldConfig<any>>;
 };
+
+export interface EditForm {
+    item: {
+        id: string
+        created: boolean,
+    },
+    field: IField;
+    fieldId: string;
+    cancelEdit: (item: {
+        id: string
+        created: boolean,
+    } | null) => void;
+    onSubmit: (event: any) => void;
+}

@@ -19,11 +19,11 @@ export const GenerateField: FC<{ fieldId: string }> = ({ fieldId }) => {
     if (field.type === "CUSTOM") {
         const CustomComponent = components.CUSTOM[field.component || "default"];
         if (!CustomComponent) return null;
-        return <CustomComponent {...inputProps} field={field} form={form} />;
+        return <CustomComponent {...inputProps} form={form} />;
     }
 
     const FieldComponent = components[field.type] || components.TEXT;
-    return <FieldComponent {...inputProps} field={field} form={form} />;
+    return <FieldComponent {...inputProps} orm={form} />;
 };
 
 
