@@ -1,4 +1,4 @@
-import {type FC, useCallback, useState} from "react";
+import {type FC,  useCallback, useEffect, useState} from "react";
 import {useFormStore} from "../store/useFormStore.ts";
 import {useComponentsStore} from "../store/useComponentsStore.ts";
 import {ExpressionEvaluator} from "../store/ExpressionEvaluator.ts";
@@ -6,6 +6,7 @@ import {formatToUTCDate} from "../helpers.ts";
 import type {FieldConfig, FormGroup} from "../types.ts";
 import {useCascadeDropDown} from "../hooks/useCascadeDropDown.ts";
 import {FormInputElementWraper} from "../componets/FormInputElementWraper.tsx";
+import {Grid} from "@mantine/core";
 
 export const GenerateField: FC<{ fieldId: string }> = ({ fieldId }) => {
     const { fields, form } = useFormStore((s) => ({ fields: s.fields, form: s.form }));
@@ -192,3 +193,41 @@ export const GenerateGroup: FC<{ group: FormGroup}> = (props) => {
             })}
         </FormInputElementWraper>);
 }
+
+export const FormGenerator: FC<{ }> = () => {
+    const store = useFormStore(state => state)
+    const groups = store.groups;
+    const [columns, setColumns] = useState(12);
+
+    useEffect(() => {
+        function updateColumns() {
+            if (window.innerWidth < 1000) {
+                setColumns(6);
+            } else if (window.innerWidth < 1750) {
+                setColumns(12);
+            } else {
+                setColumns(18);
+            }
+        }
+
+        window.addEventListener('resize', updateColumns);
+        updateColumns(); // initial call
+
+        return () => window.removeEventListener('resize', updateColumns);
+    }, []);
+
+
+    return (
+        <Grid
+            type={"media"}
+            columns={columns}
+            gutter={'xs'}
+        >
+            {Object.entries(groups).map(([index, value]) => {
+                return value.value?.some(key => Object.keys(store.fields).includes(key)) &&
+                    <GenerateGroup key={index} group={value} />
+            })}
+        </Grid>
+    );
+}
+

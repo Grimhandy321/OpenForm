@@ -3,7 +3,9 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
 import '@mantine/core/styles.css';
-import '@progress/kendo-theme-default/dist/all.css';
+import '@mantine/dates/styles.css';
+import '@mantine/notifications/styles.css';
+import '@mantine/core/styles.layer.css';
 
 
 createRoot(document.getElementById('root')!).render(
