@@ -33,6 +33,7 @@ export interface IField {
     error?: string;
     info?: string;
     expression?: string;
+    loading?: boolean;
 }
 
 
@@ -113,6 +114,7 @@ export interface FieldConfig<TValue = any, TData = any> {
     minDate?: Date;
     clearable?: boolean;
     checked?: boolean;
+    dataLoading?: boolean;
     form?: any;
 }
 

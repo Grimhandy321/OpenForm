@@ -1,65 +1,66 @@
-import {type ComboboxItem, Select, type SelectProps} from "@mantine/core";
-import {useEffect} from "react";
-import type {SelectItem} from "../types.ts";
+import type {FieldConfig, SelectItem} from "../types.ts";
+import {type ComboboxItem, Select} from "@mantine/core";
+import {Spinner} from "react-spinner-toolkit";
 
-interface CustomSelectProps extends Omit<SelectProps, 'data' | 'value' | 'onChange'> {
+interface CustomSelectProps extends Omit<FieldConfig, 'data' | 'value' | 'onChange'> {
     data?: SelectItem[];
     value?: string | number | null;
-    onChange?: (value: string | number | null, option?: any ) => void;
+    fieldId: string;
+    onChange?: (value: string | number | null, option?: any) => void;
 }
 
 const CustomSelect: React.FC<CustomSelectProps> = ({
                                                        data = [],
                                                        value = null,
-                                                       onChange = () => {},
+                                                       onChange = () => {
+                                                       },
+                                                       fieldId,
                                                        ...rest
                                                    }) => {
     const stringValue = value !== null && value !== undefined ? String(value) : null;
-    const mantineData = data.map((item) => ({
-        label: item.label,
-        value: String(item?.value ?? ""),
-    })) as  ComboboxItem[];
-
-    if(hasDuplicateValues(mantineData)){
-        console.log("invalid select data: ");
-        console.log(mantineData);
-        return <Select {...rest} disabled error={"Invalid Data"}/>;
-    }
-    useEffect(() => {
-        if(mantineData.length === 1)
-            handleChange(mantineData[0].value);
-    }, []);
-
     const handleChange = (_value: string | null) => {
         if (_value === null) {
             onChange(null);
             return;
         }
-        let setData : any = undefined
-        // @ts-ignore
-        if(data[_value]?.data){
-            // @ts-ignore
-            setData = data[_value].data
+
+        const selectedItem = data.find(item => String(item.value) === _value);
+        let setData: any = undefined;
+        if (selectedItem?.data) {
+            setData = selectedItem.data;
         }
+
         const parsedNumber = Number(_value);
         if (!isNaN(parsedNumber) && data.some((item) => item.value === parsedNumber)) {
-            onChange(parsedNumber,setData);
+            onChange(parsedNumber, setData);
         } else {
-            onChange(_value,setData);
+            onChange(_value, setData);
         }
     };
+
+
     try {
         return (
             <Select
                 {...rest}
-        data={mantineData}
-        value={stringValue}
-        onChange={handleChange}
-        allowDeselect={false}
-        />
-    );
-    }
-    catch (error) {
+                data={data.map((item: SelectItem) => ({
+                    label: item.label,
+                    value: String(item.value)
+                }))as ComboboxItem[]}
+                value={stringValue as string}
+                onChange={handleChange}
+                rightSection={((data ?? []).length > 0 ? (data ??  []).length :
+                    rest.dataLoading ? <Spinner
+                        size={25}
+                        color="#007aff"
+                        loading={true}
+                        shape="circle"
+                    /> : undefined)
+                }
+                allowDeselect={false}
+            />
+        );
+    } catch (error) {
         console.error('CustomSelect rendering error:', error);
         // @ts-ignore
         return <Select {...rest} disabled error={error}/>;
@@ -67,15 +68,3 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
 };
 
 export default CustomSelect;
-
-function hasDuplicateValues(arr: any[]): boolean {
-    const seen = new Set<string | number | null>();
-    for (const item of arr) {
-        if (seen.has(item.value)) {
-            return true;
-        }
-        seen.add(item.value);
-    }
-    return false;
-}
-

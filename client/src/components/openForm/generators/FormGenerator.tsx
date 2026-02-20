@@ -3,8 +3,9 @@ import {useFormStore} from "../store/useFormStore.ts";
 import {useComponentsStore} from "../store/useComponentsStore.ts";
 import {ExpressionEvaluator} from "../store/ExpressionEvaluator.ts";
 import {formatToUTCDate} from "../helpers.ts";
-import type {FieldConfig} from "../types.ts";
-import {useDropdownStore} from "../store/useDropDownStore.ts";
+import type {FieldConfig, FormGroup} from "../types.ts";
+import {useCascadeDropDown} from "../hooks/useCascadeDropDown.ts";
+import {FormInputElementWraper} from "../componets/FormInputElementWraper.tsx";
 
 export const GenerateField: FC<{ fieldId: string }> = ({ fieldId }) => {
     const { fields, form } = useFormStore((s) => ({ fields: s.fields, form: s.form }));
@@ -13,7 +14,7 @@ export const GenerateField: FC<{ fieldId: string }> = ({ fieldId }) => {
     const field = fields[fieldId];
     if (!field || !form) return null;
 
-    const inputProps = FieldProps(fieldId, field, form);
+    const inputProps = FieldProps(fieldId);
 
     if (field.type === "CUSTOM") {
         const CustomComponent = components.CUSTOM[field.component || "default"];
@@ -26,15 +27,13 @@ export const GenerateField: FC<{ fieldId: string }> = ({ fieldId }) => {
 };
 
 
+
 export function FieldProps(fieldId: string): any {
-    const dropdownData = useDropdownStore();
-    const {fields, form ,} = useFormStore((s) => ({ fields: s.fields, form: s.form }));
     const [, updateState] = useState<any>();
     const forceUpdate = useCallback(() => updateState({}), []);
     const cascadeDropdown = useCascadeDropDown();
-
-    const field = fields[fieldId];
-    if (!field || !form) return null;
+    const field = useFormStore(state => state.fields[fieldId]);
+    const form = useFormStore(state => state.form);
 
     if (!field) {
         return {style: {display: "none"}};
@@ -43,44 +42,36 @@ export function FieldProps(fieldId: string): any {
         return {style: {display: "none"}};
     }
     const returnData: FieldConfig = {
-        label:  fieldId + ".label",
-        placeholder: (field.state === "VIEW") ? "" : fieldId + ".placeholder",
+        label: fieldId + ".label",
+        placeholder: (field.state === "VIEW") ? "" :fieldId + ".placeholder",
         disabled: field.state === "VIEW",
         readOnly: field.state === "VIEW",
         error: field.error ? field.error : form.errors[fieldId] ? form.errors[fieldId] : undefined,
+        dataLoading: field.loading ?? false,
         onChange: () => {
         } // No-op for VIEW state
     };
     const value = form.values[fieldId];
     switch (field.type) {
         case "SELECT":
-            returnData.placeholder = 'select.placeholer'
-            if (dropdownData.exists(fieldId)) {
-                returnData.data = dropdownData.getDropdownData(fieldId);
-            } else if (field?.config?.data) {
-                returnData.data = field.config.data;
-            }
-            returnData.disabled = returnData?.data === undefined;
-
+            returnData.placeholder = 'select.placeholer';
+            returnData.data = field?.config?.data ?? [];
+            returnData.disabled = returnData?.data?.length == 0;
             returnData.onChange = (value: any, setData?: any) => {
                 //  setValue(value);
                 const loadData = field.config?.loadData;
-
                 form.setFieldValue(fieldId, value);
 
                 if (loadData) {
                     form.getInputProps(fieldId).onChange(value);
                     loadData.forEach(async (item: string) => {
-                        await cascadeDropdown(item, fieldId, value,fieldId,form);
-                        forceUpdate();
+                        await cascadeDropdown(item, fieldId, value,form);
                     })
                 }
-                forceUpdate();
                 if (setData) {
                     Object.keys(setData).forEach((key: string) => {
                         form.setFieldValue(key, setData[key]);
                     })
-
                 }
             };
 
@@ -159,7 +150,7 @@ export function FieldProps(fieldId: string): any {
 
         return {
             label: fieldId + ".label",
-            placeholder: fieldId + ".placeholder",
+            placeholder:  fieldId + ".placeholder",
             disabled: true,
             value: value,
         };
@@ -170,6 +161,7 @@ export function FieldProps(fieldId: string): any {
         ...returnData,
     };
 }
+
 
 const setGroupHidden = (groupId: string, hidden: boolean) => {
     const store = useFormStore();
@@ -184,4 +176,19 @@ const setGroupHidden = (groupId: string, hidden: boolean) => {
             return;
         });
     });
+}
+
+export const GenerateGroup: FC<{ group: FormGroup}> = (props) => {
+    const group = props.group
+    if (group.state === "HIDDEN") {
+        return <></>
+    }
+
+    return (
+        <FormInputElementWraper colls={group.config?.colls} title={group.config?.title}
+                                collabsable={group.config?.collabsable ?? false}>
+            {group?.value?.map((field) => {
+                return <GenerateField key={field} fieldId={field}/>
+            })}
+        </FormInputElementWraper>);
 }

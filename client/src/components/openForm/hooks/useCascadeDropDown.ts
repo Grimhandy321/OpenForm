@@ -1,47 +1,60 @@
 import {useFormStore} from "../store/useFormStore.ts";
-import {useDropdownStore} from "../store/useDropDownStore.ts";
-import {useCallback, useState} from "react";
+import type {IField} from "../types.ts";
+import {useAxiosClient} from "../../api/axios-client.tsx";
 
-export const  useCascadeDropDown = () => {
-  /*  const store = useFormStore();
-    const dropdownData = useDropdownStore();
-    const [, updateState] = useState<any>();
-    const forceUpdate = useCallback(() => updateState({}), []);
-  //  const axiosClient = useAxiosClient();
+export const useCascadeDropDown = () => {
+    const store = useFormStore(state => state);
+    const axiosClient = useAxiosClient();
 
-    const cascadeDropDown = async (target: string, source: string, value: any,fieldId: string,form: any) => {
-       /* const field = store.getField(target);
-        const loadData = field?.config?.loadData;
-        console.debug("Cascade: " + source + " : " + value + "  " + target)
-        if (value == null) {
-            form.setFieldValue(target, null);
-            dropdownData.clearDropdownData(target);
+    const setLoadingForLoadDataFields = (loading: boolean, form: any, field?: IField) => {
+        if (!field || !field.config?.loadData) {
+            return;
         }
-
-        if ((target != fieldId) && (value != null)) {
-            dropdownData.clearDropdownData(target);
-            form.setFieldValue(target, null);
-         /*   const response = await axiosClient.post("/config/getDropDownData", {
-                fieldId: source,
-                value,
-                target,
-            },);
-            dropdownData.setDropdownData(target, response?.data ?? [])
-            if (response?.data.length === 1) {
-                form.setFieldValue(target, response?.data[0].value);
-                value = response?.data[0].value;
-                forceUpdate();
-            } else {
-                value = null;
+        for (const item of field.config.loadData) {
+            store.updateField(item, {loading});
+            if (loading) {
+                form.setFieldValue(item, null);
+                store.updateFieldConfig(item, {data: []});
             }
+            const childField = store.fields[item];
+            setLoadingForLoadDataFields(loading, form, childField);
+        }
+    };
+
+    const cascadeDropDown = async (target: string, source: string, value: any, form: any) => {
+        const field = store.fields[target];
+
+        if (value == null) {
+            setLoadingForLoadDataFields(false, form, field);
+            return;
         }
 
-        if (!loadData) return;
-        if (loadData?.length == 0) return;
+        setLoadingForLoadDataFields(true, form, field);
 
-        loadData.forEach((item) => {
-            cascadeDropDown(item, target, value,"",form);
-        });*/
+        store.updateFieldConfig(target, {data: []});
+        store.updateField(target, {loading: true});
+
+        const response = await axiosClient.post("/config/getDropDownData", {
+            fieldId: source,
+            value,
+            target,
+        });
+
+        store.updateFieldConfig(target, {data: response?.data ?? []});
+        store.updateField(target, {loading: false});
+
+        if (response?.data.length === 1) {
+            form.setFieldValue(target, response.data[0].value);
+            value = response.data[0].value;
+        } else {
+            form.setFieldValue(target, null);
+            value = null;
+        }
+        setLoadingForLoadDataFields(false, form, field);
+
+        for (const item of field?.config?.loadData ?? []) {
+            await cascadeDropDown(item, target, value, form);
+        }
     };
 
     return cascadeDropDown;
