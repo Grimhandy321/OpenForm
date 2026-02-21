@@ -211,7 +211,7 @@ export const FormGenerator: FC<{ }> = () => {
         }
 
         window.addEventListener('resize', updateColumns);
-        updateColumns(); // initial call
+        updateColumns();
 
         return () => window.removeEventListener('resize', updateColumns);
     }, []);
