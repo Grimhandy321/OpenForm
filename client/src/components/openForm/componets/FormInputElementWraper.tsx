@@ -1,6 +1,6 @@
 import { Grid, Box, Container, Paper, Text, Collapse, Group } from "@mantine/core";
 import React, {type FC, type ReactNode } from "react";
-import classes from "../../style/Claim.module.css";
+import classes from "../style/Group.module.css";
 import { useDisclosure } from "@mantine/hooks";
 import { IconChevronDown, IconChevronLeft } from "@tabler/icons-react";
 

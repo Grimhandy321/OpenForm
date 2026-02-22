@@ -1,0 +1,23 @@
+
+.tabBox
+{
+    border:1px solid  var(--mantine-color-gray-3);
+    border-top: 0;
+    border-radius: 5px;
+}
+.formWraper{
+    border-radius: 5px 5px 0 0;
+}
+.formWraperBox{
+    padding: 9px;
+}
+.formWraperBoxTitle{
+    color: white;
+    padding:9px 7px  ;
+    background-color: #00364D;
+    border-radius: 5px 5px 0 0;
+}
+
+.nowrap {
+    white-space: nowrap;
+}

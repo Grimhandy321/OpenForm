@@ -1,4 +1,4 @@
-import classes from "@/style/Grid.module.css";
+import classes from "../../style/Grid.module.css";
 import {
     IconDownload, IconEdit, IconTrash
 } from "@tabler/icons-react";

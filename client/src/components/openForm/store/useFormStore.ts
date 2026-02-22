@@ -3,11 +3,11 @@ import type {MantineColor} from "@mantine/core";
 import {formatToUTCDate} from "../helpers.ts";
 
 export interface IField {
-    state?: "EDITABLE" | "VIEW" | "HIDDEN" | "VIEWONLY" | "TABLE" | "ADDABLE" ;
+    state: "EDITABLE" | "VIEW" | "HIDDEN" | "VIEWONLY" | "TABLE" | "ADDABLE" ;
     value?: string | number | any[];
     type: "NUMBER" | "STRING" | "DATE" | "TEXT" | "CUSTOM" | "SELECT" | "BOOLEAN" | "TABLE"  | "TEXTAREA" ;
     config?: IFieldConfig;
-    component: string;
+    component?: string;
     validators?: string[];
     error?: string;
     info?: string;
@@ -37,14 +37,13 @@ export interface ITableColl {
     type: "NUMBER" | "SELECT" | "DATE" | "TEXT"  | "FILE",
     state: "EDITABLE" | "VIEW" | "HIDDEN" | "VIEWONLY",
     data?: TableSelectItem[],
-    loadData: string[],
+    loadData?: string[],
     id: string,
-    expression: string | null ,
+    expression?: string | null ,
     default?: string | number;
     min?: number,
     max?: number,
-    aggregate: boolean,
-    required: boolean,
+    aggregate?: boolean,
     link?: string
 }
 
@@ -104,18 +103,9 @@ export interface TFormStore {
     // stepper
     stepper: Stepper | null;
     setStepper: (stepper: Stepper) => void;
-    //messages
-    messages: Message[];
-    setMessages: (messages: Message[]) => void;
     // button:
     buttons: Button[];
     setButtons: (buttons: Button[]) => void;
-    // buttonErrors
-    buttonErrors: Message[];
-    setButtonErrors: (messages: Message[]) => void;
-    // alertes
-    alerts: Message[];
-    setAlerts: (alerts: Message[]) => void;
     // tabs
     tabs: Record<string,Tab>
     setTabs: (tabs: Record<string, Tab>) => void;
@@ -125,15 +115,14 @@ export interface TFormStore {
     csrfToken: string;
     setCsrfToken: (token: string) => void;
 
-    initializeFromClaimData: (
-        data: FormData ,
+    initializeFrom: (
+        data: FormDefinition  ,
     ) => void;
 }
 
-export type FormData = {
+export type FormDefinition = {
     fields: Record<string, IField>;
     buttons: Button[];
-    buttonErrors?: Message[];
     stepper: Stepper;
     groups: Record<string, FormGroup>;
     tabs: Record<string, Tab>;
@@ -227,17 +216,10 @@ export const useFormStore: UseBoundStore<StoreApi<TFormStore>> = create<TFormSto
     stepper: null,
     setStepper: (stepper: Stepper) => set({stepper :stepper}),
     // messages
-    messages: [],
-    setMessages: (messages: Message[]) => set({messages : messages}),
     // buttons
     buttons: [],
     setButtons: (buttons: Button[]) => set({buttons : buttons}),
-    // buttonErrors
-    buttonErrors: [],
-    setButtonErrors: (buttonErrors: Message[]) => set({buttonErrors : buttonErrors}),
     // alertes
-    alerts: [],
-    setAlerts: (alerts: Message[]) => set({alerts : alerts}),
     //
     tabs: {},
     setTabs: (tabs: Record<string,Tab>) => set({tabs : tabs}),
@@ -264,7 +246,7 @@ export const useFormStore: UseBoundStore<StoreApi<TFormStore>> = create<TFormSto
     csrfToken: "",
     setCsrfToken: (token: string) => set({csrfToken:token}),
 
-    initializeFromClaimData: (data) => {
+    initializeFrom: (data) => {
         if (!data) return;
 
         const { form } = get();
@@ -273,8 +255,6 @@ export const useFormStore: UseBoundStore<StoreApi<TFormStore>> = create<TFormSto
         set({
             fields: data.fields,
             buttons: data.buttons,
-            buttonErrors: data.buttonErrors ?? [],
-            stepper: data.stepper,
             groups: data.groups,
             tabs: data.tabs,
         });

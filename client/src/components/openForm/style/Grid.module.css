@@ -1,0 +1,80 @@
+.container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.left-item {
+    flex: 0 1 auto;
+}
+
+.right-item {
+    margin: 10px
+}
+
+.nowrap {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+
+}
+
+.description-cell {
+    text-overflow: ellipsis;
+}
+
+.description-cell:hover {
+    white-space: normal;
+    z-index: 1;
+    background-color: white;
+    position: absolute;
+    left: 0;
+    top: 0;
+    max-width: none;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.gridContainer {
+    height: 40em;
+    overflow: auto;
+}
+
+@media (max-width: 768px) {
+    .gridContainer {
+        height: 30em;
+    }
+}
+
+@media (max-width: 480px) {
+    .gridContainer {
+        height: 20em;
+    }
+}
+
+.offerRegisterButtonContainer {
+    margin-bottom: 10px; /* space below the button */
+}
+
+.brokerAction   {
+    background-color: #e9f0f3;
+}
+
+.dealerAction   {
+    background-color: #ffe6b7;
+}
+
+.claim-close    {
+    background-color: #f3f7bf;
+}
+
+.claim-rejected    {
+    background-color: lightpink;
+}
+
+.approvalHistoryTitle {
+    color: white;
+    padding: 9px 7px;
+    background-color: #a9a9a9;
+    border-radius: 5px 5px 0 0;
+}
