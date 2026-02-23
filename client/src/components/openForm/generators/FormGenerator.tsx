@@ -1,4 +1,4 @@
-import {type FC,  useCallback, useEffect, useState} from "react";
+import {type FC, useCallback, useEffect, useState} from "react";
 import {type FormDefinition, useFormStore} from "../store/useFormStore.ts";
 import {type FieldComponents, useComponentsStore} from "../store/useComponentsStore.tsx";
 import {ExpressionEvaluator} from "../store/ExpressionEvaluator.ts";
@@ -6,12 +6,13 @@ import {formatToUTCDate} from "../helpers.ts";
 import type {FieldConfig, FormGroup} from "../types.ts";
 import {useCascadeDropDown} from "../hooks/useCascadeDropDown.ts";
 import {FormInputElementWraper} from "../componets/FormInputElementWraper.tsx";
-import {Grid} from "@mantine/core";
+import {Box, Grid} from "@mantine/core";
 import {useForm} from "@mantine/form";
+import {StepFromGenerator} from "./StepFormGenerator.tsx";
 
-export const GenerateField: FC<{ fieldId: string }> = ({ fieldId }) => {
-    const { fields, form } = useFormStore();
-    const { components } = useComponentsStore();
+export const GenerateField: FC<{ fieldId: string }> = ({fieldId}) => {
+    const {fields, form} = useFormStore();
+    const {components} = useComponentsStore();
 
     const field = fields[fieldId];
     if (!field || !form) return null;
@@ -21,13 +22,12 @@ export const GenerateField: FC<{ fieldId: string }> = ({ fieldId }) => {
     if (field.type === "CUSTOM") {
         const CustomComponent = components.CUSTOM[field.component || "default"];
         if (!CustomComponent) return null;
-        return <CustomComponent {...inputProps} form={form} />;
+        return <CustomComponent {...inputProps} form={form}/>;
     }
 
     const FieldComponent = components[field.type] || components.TEXT;
-    return <FieldComponent {...inputProps} orm={form} />;
+    return <FieldComponent {...inputProps} orm={form}/>;
 };
-
 
 
 export function FieldProps(fieldId: string): any {
@@ -45,7 +45,7 @@ export function FieldProps(fieldId: string): any {
     }
     const returnData: FieldConfig = {
         label: fieldId + ".label",
-        placeholder: (field.state === "VIEW") ? "" :fieldId + ".placeholder",
+        placeholder: (field.state === "VIEW") ? "" : fieldId + ".placeholder",
         disabled: field.state === "VIEW",
         readOnly: field.state === "VIEW",
         error: field.error ? field.error : form.errors[fieldId] ? form.errors[fieldId] : undefined,
@@ -67,7 +67,7 @@ export function FieldProps(fieldId: string): any {
                 if (loadData) {
                     form.getInputProps(fieldId).onChange(value);
                     loadData.forEach(async (item: string) => {
-                        await cascadeDropdown(item, fieldId, value,form);
+                        await cascadeDropdown(item, fieldId, value, form);
                     })
                 }
                 if (setData) {
@@ -80,10 +80,9 @@ export function FieldProps(fieldId: string): any {
             break;
         case "DATE":
             returnData.onChange = (value: Date | null) => {
-                if(value === null){
+                if (value === null) {
                     form.setFieldValue(fieldId, value);
-                }
-                else {
+                } else {
                     form.setFieldValue(fieldId, formatToUTCDate(new Date(value)));
                 }
             }
@@ -152,7 +151,7 @@ export function FieldProps(fieldId: string): any {
 
         return {
             label: fieldId + ".label",
-            placeholder:  fieldId + ".placeholder",
+            placeholder: fieldId + ".placeholder",
             disabled: true,
             value: value,
         };
@@ -180,7 +179,7 @@ const setGroupHidden = (groupId: string, hidden: boolean) => {
     });
 }
 
-export const GenerateGroup: FC<{ group: FormGroup}> = (props) => {
+export const GenerateGroup: FC<{ group: FormGroup }> = (props) => {
     const group = props.group
     if (group.state === "HIDDEN") {
         return <></>
@@ -195,23 +194,27 @@ export const GenerateGroup: FC<{ group: FormGroup}> = (props) => {
         </FormInputElementWraper>);
 }
 
-export const FormGenerator: FC<{definition:FormDefinition,components?:FieldComponents}> = ({definition,components}) => {
+export const FormGenerator: FC<{
+    definition: FormDefinition,
+    components?: FieldComponents,
+    handleSubmit: (data: object) => any,
+}> = ({definition, components}) => {
     const [columns, setColumns] = useState(12);
     const store = useFormStore();
     const componentsStore = useComponentsStore();
     const form = useForm({});
 
 
-
     const groups = store.groups ?? {}
 
     useEffect(() => {
         componentsStore.updateComponents(components ?? {});
-        store.initializeFrom(form,definition);
+        store.initializeFrom(form, definition);
+
         function updateColumns() {
             if (window.innerWidth < 1000) {
                 setColumns(6);
-            } else if (window.innerWidth < 1750) {
+            } else if (window.innerWidth < 1500) {
                 setColumns(12);
             } else {
                 setColumns(18);
@@ -224,18 +227,25 @@ export const FormGenerator: FC<{definition:FormDefinition,components?:FieldCompo
         return () => window.removeEventListener('resize', updateColumns);
     }, []);
 
-
-    return (
-        <Grid
-            type={"media"}
-            columns={columns}
-            gutter={'xs'}
-        >
-            {Object.entries(groups).map(([index, value]) => {
-                return value.value?.some(key => Object.keys(store.fields).includes(key)) &&
-                    <GenerateGroup key={index} group={value} />
-            })}
-        </Grid>
-    );
+    if (Object.keys(store?.steps ?? {}).length === 0) {
+        return (
+            <Box>
+                <Grid
+                    type={"media"}
+                    columns={columns}
+                    gutter={'xs'}
+                >
+                    {Object.entries(groups).map(([index, value]) => {
+                        return value.value?.some(key => Object.keys(store.fields).includes(key)) &&
+                            <GenerateGroup key={index} group={value}/>
+                    })}
+                </Grid>
+            </Box>
+        );
+    }else {
+        <Box>
+            <StepFromGenerator/>
+        </Box>
+    }
 }
 

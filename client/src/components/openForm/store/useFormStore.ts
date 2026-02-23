@@ -106,11 +106,6 @@ export interface TFormStore {
     // button:
     buttons: Button[];
     setButtons: (buttons: Button[]) => void;
-    // tabs
-    tabs: Record<string,Tab>
-    setTabs: (tabs: Record<string, Tab>) => void;
-    getTab: (id: string) => Tab | null;
-    setTabFields: (id: string, field: Record<string, IField>) => void;
     // csrf
     csrfToken: string;
     setCsrfToken: (token: string) => void;
@@ -126,7 +121,6 @@ export type FormDefinition = {
     buttons: Button[];
     stepper: Stepper;
     groups: Record<string, FormGroup>;
-    tabs: Record<string, Tab>;
 };
 
 
@@ -222,25 +216,6 @@ export const useFormStore: UseBoundStore<StoreApi<TFormStore>> = create<TFormSto
     setButtons: (buttons: Button[]) => set({buttons : buttons}),
     // alertes
     //
-    tabs: {},
-    setTabs: (tabs: Record<string,Tab>) => set({tabs : tabs}),
-    getTab: (id: string)  => {
-        const tabs = get().tabs;
-        return tabs[id] ?? null;
-    },
-    setTabFields: (id: string, fields: Record<string, IField>) => {
-        set( state =>  {
-            const tab = state.tabs[id];
-            tab.fields = fields;
-            return {
-                tabs:{
-                    ...state.tabs,
-                    [id]: tab
-                }
-            }
-        })
-    },
-    //
     groups: {},
     setGroups: (groups: Record<string, FormGroup>) => set({groups : groups}),
     // csrf
@@ -257,7 +232,6 @@ export const useFormStore: UseBoundStore<StoreApi<TFormStore>> = create<TFormSto
             fields: data.fields,
             buttons: data.buttons,
             groups: data.groups,
-            tabs: data.tabs,
         });
 
         for (const fieldId in data.fields) {

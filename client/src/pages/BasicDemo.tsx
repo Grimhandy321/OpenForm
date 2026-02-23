@@ -1,5 +1,6 @@
 import {type FormDefinition} from "../components/openForm/store/useFormStore";
 import {FormGenerator} from "../components/openForm/generators/FormGenerator.tsx";
+import {Container} from "@mantine/core";
 
 
 const deffinition: FormDefinition = {
@@ -162,11 +163,18 @@ const deffinition: FormDefinition = {
         "steps": ["incident", "dates", "parts", "files", "comments"],
         "currentStep": 0
     },
-
-    "tabs": {}
 }
 
 
 export const BasicDemo = () => {
-    return <FormGenerator definition={deffinition}/>;
+    const handleSubmit = (data: object, action?: string) => {
+        if (action === "save") {
+            console.log("Saving draft", data);
+        } else {
+            console.log("Submitting", data);
+        }
+    };
+    return <Container size={"xl"} bg ='dark' >
+        <FormGenerator definition={deffinition} handleSubmit={handleSubmit} />
+    </Container>;
 }

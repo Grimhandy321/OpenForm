@@ -1,3 +1,5 @@
+import type {TFormStore} from "../store/useFormStore.ts";
+
 export type RuleToken = { name: string; param?: string | null };
 export function parseRuleString(ruleString = ""): RuleToken[] {
     return String(ruleString || "")
@@ -10,6 +12,16 @@ export function parseRuleString(ruleString = ""): RuleToken[] {
         });
 }
 
+export const validateField = (fieldId: string, form: any, store: TFormStore): string[] => {
+    const field = store.getField(fieldId);
+    const errors = field?.validators?.map((validator) => {
+        return validateSingleRule(validator, form.values[fieldId], form.values);
+    });
+    return errors?.filter(item => item != null) ?? [];
+}
+export const formatErrorMessage = (fieldId: string, error: string) => {
+    return fieldId + "." + error + "." + "error";
+}
 
 const isEmptyValue = (val: unknown) =>
     val === null ||

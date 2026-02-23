@@ -10,18 +10,18 @@ export const Layout = () => {
         header={{ height: 60 }}
         footer={{ height: 60 }}
         navbar={{ width: 180, breakpoint: "sm", collapsed: { mobile: !opened } }}
-        padding="md"
+        padding="xl"
     >
         {/* HEADER */}
         <AppShell.Header bg="blue">
-            <Group h="100%" px="md">
+            <Group h="100%" mx="md">
                 <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
                 <Title c="white">OpenForm</Title>
             </Group>
         </AppShell.Header>
 
         {/* NAVBAR */}
-        <AppShell.Navbar p="md">
+        <AppShell.Navbar>
             <NavLink
                 label="Home"
                 component={Link}
@@ -36,7 +36,7 @@ export const Layout = () => {
             />
         </AppShell.Navbar>
 
-        <AppShell.Main>
+        <AppShell.Main w={"100em"} >
             <Outlet />
         </AppShell.Main>
 

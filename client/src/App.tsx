@@ -1,4 +1,3 @@
-import './App.css'
 import { createTheme, MantineProvider,} from "@mantine/core";
 import {Routes,Route, BrowserRouter} from "react-router-dom";
 import {BasicDemo} from "./pages/BasicDemo.tsx";
@@ -19,7 +18,6 @@ function App() {
                       <Route path="/" element={"Home"} />
                       <Route path="/demo" element={<BasicDemo/>} />
                   </Route>
-
                   <Route path="*" element={"Not Found "} />
               </Routes>
           </MantineProvider>
