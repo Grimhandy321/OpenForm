@@ -58,14 +58,14 @@ export interface ITableColl {
     type: "NUMBER" | "SELECT" | "DATE" | "TEXT"  | "FILE",
     state: "EDITABLE" | "VIEW" | "HIDDEN" | "VIEWONLY",
     data?: TableSelectItem[],
-    loadData: string[],
+    loadData?: string[],
     id: string,
-    expression: string | null ,
+    expression?: string | null ,
     default?: string | number;
     min?: number,
     max?: number,
-    aggregate: boolean,
-    required: boolean,
+    aggregate?: boolean,
+    required?: boolean,
     link?: string
 }
 
@@ -118,26 +118,11 @@ export interface FieldConfig<TValue = any, TData = any> {
     form?: any;
 }
 
-import type { FC } from "react";
-
-export type FieldComponents = {
-    NUMBER: FC<FieldConfig<number>>;
-    TEXT: FC<FieldConfig<string>>;
-    STRING: FC<FieldConfig<string>>;
-    TEXTAREA: FC<FieldConfig<string>>;
-    SELECT: FC<FieldConfig<string, SelectItem[]>>;
-    DATE: FC<FieldConfig<Date>>;
-    BOOLEAN: FC<FieldConfig<boolean>>;
-    CUSTOM: Record<string, FC<FieldConfig<any>>>;
-    TABLE: FC<FieldConfig<any>>;
-};
-
 export interface EditForm {
     item: {
         id: string
         created: boolean,
     },
-    field: IField;
     fieldId: string;
     cancelEdit: (item: {
         id: string

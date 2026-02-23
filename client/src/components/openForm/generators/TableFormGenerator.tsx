@@ -11,9 +11,11 @@ import {TextBoxField} from "../componets/Fields/TextBoxField.tsx";
 import {DatePicker} from '@progress/kendo-react-dateinputs';
 import {SingleFileField} from "../componets/Fields/SingleFileField.tsx";
 import type {EditForm} from "../types.ts";
+import {useFormStore} from "../store/useFormStore.ts";
 
 export const GenerateEditForm = (props: EditForm) => {
-    const {item, field, cancelEdit, onSubmit} = props;
+    const {item, cancelEdit, onSubmit} = props;
+    const field = useFormStore(state => state.fields[props.fieldId]);
     const {tr} = useTranslator();
     const [isSubmiting, setIsSubmiting] = useState<boolean>(false);
 

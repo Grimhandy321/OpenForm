@@ -1,15 +1,16 @@
 import {type FC,  useCallback, useEffect, useState} from "react";
-import {useFormStore} from "../store/useFormStore.ts";
-import {useComponentsStore} from "../store/useComponentsStore.ts";
+import {type FormDefinition, useFormStore} from "../store/useFormStore.ts";
+import {type FieldComponents, useComponentsStore} from "../store/useComponentsStore.tsx";
 import {ExpressionEvaluator} from "../store/ExpressionEvaluator.ts";
 import {formatToUTCDate} from "../helpers.ts";
 import type {FieldConfig, FormGroup} from "../types.ts";
 import {useCascadeDropDown} from "../hooks/useCascadeDropDown.ts";
 import {FormInputElementWraper} from "../componets/FormInputElementWraper.tsx";
 import {Grid} from "@mantine/core";
+import {useForm} from "@mantine/form";
 
 export const GenerateField: FC<{ fieldId: string }> = ({ fieldId }) => {
-    const { fields, form } = useFormStore((s) => ({ fields: s.fields, form: s.form }));
+    const { fields, form } = useFormStore();
     const { components } = useComponentsStore();
 
     const field = fields[fieldId];
@@ -194,12 +195,19 @@ export const GenerateGroup: FC<{ group: FormGroup}> = (props) => {
         </FormInputElementWraper>);
 }
 
-export const FormGenerator: FC<{ }> = () => {
-    const store = useFormStore(state => state)
-    const groups = store.groups;
+export const FormGenerator: FC<{definition:FormDefinition,components?:FieldComponents}> = ({definition,components}) => {
     const [columns, setColumns] = useState(12);
+    const store = useFormStore();
+    const componentsStore = useComponentsStore();
+    const form = useForm({});
+
+
+
+    const groups = store.groups ?? {}
 
     useEffect(() => {
+        componentsStore.updateComponents(components ?? {});
+        store.initializeFrom(form,definition);
         function updateColumns() {
             if (window.innerWidth < 1000) {
                 setColumns(6);

@@ -25,14 +25,16 @@ export const TableGenerator: FC<{ fieldId: string }> = ({ fieldId}) => {
     const {tr} = useTranslator();
     const field = useFormStore(state => state.fields[fieldId]);
     const form = useFormStore(state => state.form);
-    const dateColId = field.config?.cols?.filter((col: ITableColl) => col.type == "DATE").map((item: ITableColl) => item.id);
+    const dateColId = field?.config?.cols
+        ?.filter((col: ITableColl) => col.type === "DATE")
+        .map((col: ITableColl) => col.id);
     const [openForm, setOpenForm] = useState<boolean>(false);
     const [editItem, setEditItem] = useState<any | null>({});
     const axiosClient = useAxiosClient();
     const [, updateState] = useState<any>();
     const forceUpdate = useCallback(() => updateState({}), []);
     const evaluator = new ExpressionEvaluator();
-    const defaultEditItem = field.config?.cols?.reduce((acc, item) => {
+    const defaultEditItem = field?.config?.cols?.reduce((acc, item) => {
         return {
             ...acc,
             [item.id]: item.default
@@ -215,7 +217,7 @@ export const TableGenerator: FC<{ fieldId: string }> = ({ fieldId}) => {
                         {tr("table.add.record")}
                     </Button>
                 </GridToolbar>}
-                {field.config?.cols?.map((col: ITableColl, index) => {
+                {field?.config?.cols?.map((col: ITableColl, index) => {
 
                     if (col.state === "HIDDEN") {
                         return null;
@@ -261,7 +263,7 @@ export const TableGenerator: FC<{ fieldId: string }> = ({ fieldId}) => {
                             cells={{data: MyEditCommandCell}}/>}
             </Grid>
             {openForm &&
-                <GenerateEditForm cancelEdit={handleCancelEdit} onSubmit={handleSubmit} item={editItem} field={field}
+                <GenerateEditForm cancelEdit={handleCancelEdit} onSubmit={handleSubmit} item={editItem}
                                   fieldId={fieldId}/>}
             {field.error && <Text c={"red"} size={"sm"}>{field.error}</Text>}
         </IntlProvider>

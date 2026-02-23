@@ -1,11 +1,4 @@
-import {useComponentsStore} from "../components/openForm/store/useComponentsStore";
-import {useEffect} from "react";
-import {Checkbox, ColorPicker, NumberInput, Textarea, TextInput} from "@mantine/core";
-import CustomSelect from "../components/openForm/componets/CustomSelect";
-import FormatedDateInput from "../components/openForm/componets/FormatedDateInput";
-import {type FormDefinition, useFormStore} from "../components/openForm/store/useFormStore";
-import {useForm} from "@mantine/form";
-import {TableGenerator} from '../components/openForm/generators/TableGenerator';
+import {type FormDefinition} from "../components/openForm/store/useFormStore";
 import {FormGenerator} from "../components/openForm/generators/FormGenerator.tsx";
 
 
@@ -65,7 +58,7 @@ const deffinition: FormDefinition = {
             "value": 21,
             "type": "NUMBER"
         },
-        "claimParts": {
+        "Parts": {
             "state": "EDITABLE",
             "value": [
                 {
@@ -79,9 +72,9 @@ const deffinition: FormDefinition = {
             "config": {
                 "limit": 5,
                 "cols": [
-                    { "type": "TEXT", "state": "EDITABLE", "id": "description" },
-                    { "type": "NUMBER", "state": "EDITABLE", "id": "price", "min": 0 },
-                    { "type": "NUMBER", "state": "EDITABLE", "id": "quantity", "min": 1, "default": 1 },
+                    {"type": "TEXT", "state": "EDITABLE", "id": "description"},
+                    {"type": "NUMBER", "state": "EDITABLE", "id": "price", "min": 0},
+                    {"type": "NUMBER", "state": "EDITABLE", "id": "quantity", "min": 1, "default": 1},
                     {
                         "type": "NUMBER",
                         "state": "VIEWONLY",
@@ -92,14 +85,14 @@ const deffinition: FormDefinition = {
                 ]
             }
         },
-        "claimFiles": {
+        "Files": {
             "state": "EDITABLE",
             "value": [],
             "type": "TABLE",
             "config": {
                 "cols": [
-                    { "type": "FILE", "state": "EDITABLE", "id": "name" },
-                    { "type": "TEXT", "state": "EDITABLE", "id": "description" }
+                    {"type": "FILE", "state": "EDITABLE", "id": "name"},
+                    {"type": "TEXT", "state": "EDITABLE", "id": "description"}
                 ]
             }
         }
@@ -162,8 +155,8 @@ const deffinition: FormDefinition = {
         }
     },
     "buttons": [
-        { "id": "save", "value": "Save", "color": "blue" },
-        { "id": "submit", "value": "Submit", "color": "green" }
+        {"id": "save", "value": "Save", "color": "blue"},
+        {"id": "submit", "value": "Submit", "color": "green"}
     ],
     "stepper": {
         "steps": ["incident", "dates", "parts", "files", "comments"],
@@ -175,29 +168,5 @@ const deffinition: FormDefinition = {
 
 
 export const BasicDemo = () => {
-    const setComponents = useComponentsStore((s) => s.setComponents);
-    const {setForm, initializeFrom} = useFormStore((s) => s);
-    const form = useForm();
-
-    useEffect(() => {
-        initializeFrom(deffinition)
-        setComponents({
-            NUMBER: (props) => <NumberInput {...props} />,
-            TEXT: (props) => <TextInput {...props} />,
-            STRING: (props) => <TextInput {...props} />,
-            TEXTAREA: (props) => <Textarea {...props} autosize/>,
-            SELECT: (props) => <CustomSelect {...props} />,
-            DATE: (props) => <FormatedDateInput {...props} />,
-            BOOLEAN: (props) => <Checkbox {...props} />,
-            TABLE: (props) => <TableGenerator {...props} />,
-            CUSTOM: {
-                ColorPicker: (props) => <ColorPicker {...props} />,
-            },
-        });
-        setForm(form)
-    }, [setComponents]);
-
-
-    return (<FormGenerator/>);
-
+    return <FormGenerator definition={deffinition}/>;
 }

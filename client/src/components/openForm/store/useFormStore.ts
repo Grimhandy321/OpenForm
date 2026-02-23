@@ -116,6 +116,7 @@ export interface TFormStore {
     setCsrfToken: (token: string) => void;
 
     initializeFrom: (
+        form: any,
         data: FormDefinition  ,
     ) => void;
 }
@@ -246,10 +247,10 @@ export const useFormStore: UseBoundStore<StoreApi<TFormStore>> = create<TFormSto
     csrfToken: "",
     setCsrfToken: (token: string) => set({csrfToken:token}),
 
-    initializeFrom: (data) => {
+    initializeFrom: (form,data) => {
+        set({form: form});
         if (!data) return;
 
-        const { form } = get();
         if (!form) return;
 
         set({
@@ -279,5 +280,6 @@ export const useFormStore: UseBoundStore<StoreApi<TFormStore>> = create<TFormSto
         }
     },
 }));
+
 
 
