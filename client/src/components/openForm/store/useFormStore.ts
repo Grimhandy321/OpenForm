@@ -49,8 +49,8 @@ export interface ITableColl {
 
 export type FormGroup = {
     state?: "EDITABLE" | "HIDDEN";
-    type: "GROUP";
-    value?: string[]; // FieldIds
+    type: "GROUP" | "TABS";
+    value: string[]| Record<string, string[]>; // FieldIds
     config?: {
         colls?: number,
         title?: string;
@@ -58,7 +58,7 @@ export type FormGroup = {
     }
 
 }
-export type FormStep =  Record<string, FormGroup | string>;
+export type FormSteps =  Record<string, string[]>; // group id
 
 export type Stepper = {
     steps: string[];
@@ -82,14 +82,11 @@ export type Tab = {
 
 export interface TFormStore {
     // Steps
-    steps: Record<string, FormStep>,
-    setSteps: (steps: Record<string, FormStep>) => void,
+    steps: FormSteps
+    setSteps: (steps: FormSteps) => void,
     //
     groups: Record<string, FormGroup>,
     setGroups: (groups: Record<string, FormGroup>) => void,
-    appendSteps: (steps: Record<string, FormStep>) => void,
-    getStep: (stepId: string) => FormStep,
-    updateStep: (stepId: string, step: FormStep) => void,
     // Form
     form: any,
     setForm: (form: any) => void,
@@ -119,7 +116,7 @@ export interface TFormStore {
 export type FormDefinition = {
     fields: Record<string, IField>;
     buttons: Button[];
-    stepper: Stepper;
+    steps: FormSteps;
     groups: Record<string, FormGroup>;
 };
 
@@ -127,36 +124,7 @@ export type FormDefinition = {
 export const useFormStore: UseBoundStore<StoreApi<TFormStore>> = create<TFormStore>((set, get) => ({
     //Steps
     steps: {},
-    setSteps: (steps: Record<string, FormStep>) => set({steps: steps}),
-    appendSteps: (steps: Record<string, FormStep>) => set(state => {
-        return {steps: {...state.steps, ...steps}}
-    }),
-    getStep: (stepId: string) => {
-        const steps = get().steps;
-        return steps[stepId];
-    },
-    updateStep: (stepId: string, step: FormStep) => {
-        set(state => {
-            const existingField = state.steps[stepId];
-            if (!existingField) {
-                // @ts-ignore
-                return {
-                    steps: {
-                        ...state.steps,
-                        [stepId]: {...step} as FormStep,
-                    },
-                };
-            }
-            // @ts-ignore
-            const updatedStep = {...existingField, ...step};
-            return {
-                steps: {
-                    ...state.steps,
-                    [stepId]: updatedStep,
-                },
-            };
-        })
-    },
+    setSteps: (steps: FormSteps) => set({steps: steps}),
     // form
     form: {},
     setForm: (form: any) => set({form: form}),
@@ -232,6 +200,7 @@ export const useFormStore: UseBoundStore<StoreApi<TFormStore>> = create<TFormSto
             fields: data.fields,
             buttons: data.buttons,
             groups: data.groups,
+            steps:data.steps
         });
 
         for (const fieldId in data.fields) {

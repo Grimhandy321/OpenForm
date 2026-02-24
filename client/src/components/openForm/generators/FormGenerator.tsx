@@ -3,12 +3,13 @@ import {type FormDefinition, useFormStore} from "../store/useFormStore.ts";
 import {type FieldComponents, useComponentsStore} from "../store/useComponentsStore.tsx";
 import {ExpressionEvaluator} from "../store/ExpressionEvaluator.ts";
 import {formatToUTCDate} from "../helpers.ts";
-import type {FieldConfig, FormGroup} from "../types.ts";
+import type {FieldConfig} from "../types.ts";
 import {useCascadeDropDown} from "../hooks/useCascadeDropDown.ts";
 import {FormInputElementWraper} from "../componets/FormInputElementWraper.tsx";
-import {Box, Grid} from "@mantine/core";
+import {Box, Button, Container, Grid, Group, Paper, Tabs} from "@mantine/core";
 import {useForm} from "@mantine/form";
 import {StepFromGenerator} from "./StepFormGenerator.tsx";
+import {useTranslator} from "../hooks/translator.ts";
 
 export const GenerateField: FC<{ fieldId: string }> = ({fieldId}) => {
     const {fields, form} = useFormStore();
@@ -166,29 +167,57 @@ export function FieldProps(fieldId: string): any {
 
 const setGroupHidden = (groupId: string, hidden: boolean) => {
     const store = useFormStore();
-    Object.keys(store.steps).map((key) => {
-        const step = store.steps[key];
-        Object.keys(step).map((index: string) => {
+    Object.values(store.steps).map((groupIds) => {
+        groupIds.map((index: string) => {
             if (index == groupId) {
-                // @ts-ignore
-                step[index].state = !hidden ? "HIDDEN" : "VIEW";
-                store.updateStep(key, step);
+                store.groups[index].state = hidden ? "HIDDEN" : "EDITABLE";
             }
             return;
         });
     });
 }
 
-export const GenerateGroup: FC<{ group: FormGroup }> = (props) => {
-    const group = props.group
+export const GenerateGroup: FC<{ groupId: string }> = ({groupId}) => {
+    const group = useFormStore().groups[groupId];
+    const {tr} = useTranslator();
     if (group.state === "HIDDEN") {
         return <></>
     }
 
+    if (group.type === "TABS") {
+        const tabs = group.value as Record<string, string[]>;
+
+
+        return (
+            <Grid.Col span={{base: 12, sm: group?.config?.colls ?? 6}}>
+                <Container px={"0.3em"} mx={"0px"} size={"1000rem"}>
+                    <Paper my={"xs"} shadow={"xs"} withBorder>
+                        <Tabs defaultValue={Object.keys(tabs)[0]} keepMounted={true}>
+                            <Tabs.List>
+                                {Object.keys(tabs).map((key) => {
+                                    return (<Tabs.Tab key={key} value={key}>{tr(key)}</Tabs.Tab>);
+                                })}
+                            </Tabs.List>
+
+                            {Object.entries(tabs).map(([key, value]) => {
+                                return (<Tabs.Panel key={key} value={key}>
+                                    {value.map((field: string) => {
+                                        return <GenerateField key={field} fieldId={field}/>
+                                    })}
+                                </Tabs.Panel>);
+                            })}
+                        </Tabs>
+                        );
+                    </Paper>
+                </Container>
+            </Grid.Col>
+        );
+    }
+
     return (
-        <FormInputElementWraper colls={group.config?.colls} title={group.config?.title}
+        <FormInputElementWraper colls={group.config?.colls} title={group.config?.title ?? groupId}
                                 collabsable={group.config?.collabsable ?? false}>
-            {group?.value?.map((field) => {
+            {(group?.value as string[]).map((field: string) => {
                 return <GenerateField key={field} fieldId={field}/>
             })}
         </FormInputElementWraper>);
@@ -197,8 +226,8 @@ export const GenerateGroup: FC<{ group: FormGroup }> = (props) => {
 export const FormGenerator: FC<{
     definition: FormDefinition,
     components?: FieldComponents,
-    handleSubmit: (data: object) => any,
-}> = ({definition, components}) => {
+    handleSubmit: (data: object, action?: string) => any,
+}> = ({definition, components, handleSubmit}) => {
     const [columns, setColumns] = useState(12);
     const store = useFormStore();
     const componentsStore = useComponentsStore();
@@ -227,6 +256,13 @@ export const FormGenerator: FC<{
         return () => window.removeEventListener('resize', updateColumns);
     }, []);
 
+    const submit = (values: any, action?: string) => {
+        console.log("Form submitted:", values);
+        console.log("Action:", action);
+
+        handleSubmit(values, action);
+    };
+
     if (Object.keys(store?.steps ?? {}).length === 0) {
         return (
             <Box>
@@ -235,17 +271,32 @@ export const FormGenerator: FC<{
                     columns={columns}
                     gutter={'xs'}
                 >
-                    {Object.entries(groups).map(([index, value]) => {
-                        return value.value?.some(key => Object.keys(store.fields).includes(key)) &&
-                            <GenerateGroup key={index} group={value}/>
+                    {Object.keys(groups).map((index) => {
+                        return <GenerateGroup key={index} groupId={index}/>
                     })}
                 </Grid>
+                <Group mt="md">
+                    {definition.buttons?.map((btn) => (
+                        <Button
+                            key={btn.id}
+                            color={btn.color || "blue"}
+                            type={btn.id === "submit" ? "submit" : "button"}
+                            onClick={() => {
+                                if (btn.id !== "submit") {
+                                    submit(form.values, btn.id);
+                                }
+                            }}
+                        >
+                            {btn.value}
+                        </Button>
+                    ))}
+                </Group>
             </Box>
         );
-    }else {
-        <Box>
-            <StepFromGenerator/>
-        </Box>
+    } else {
+        return (<Box>
+            <StepFromGenerator handleSubmit={handleSubmit}/>
+        </Box>);
     }
 }
 
