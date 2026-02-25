@@ -36,7 +36,6 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
         }
     };
 
-
     try {
         return (
             <Select

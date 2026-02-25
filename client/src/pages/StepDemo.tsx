@@ -10,7 +10,7 @@ export const carFormDefinition: FormDefinition = {
     },
 
     buttons: [
-        { id: "save", value: "Save", color: "green" }
+        {id: "save", value: "Save", color: "green"}
     ],
 
     fields: {
@@ -20,7 +20,21 @@ export const carFormDefinition: FormDefinition = {
             type: "SELECT",
             validators: ["required"],
             config: {
-                data: [],
+                data: [
+                    {
+                        value: 1,
+                        label: "BMW"
+                    },
+                    {
+                        value: 2,
+                        label: "VW"
+                    },
+                    {
+                        value: 3,
+                        label: "SKODA"
+                    }
+
+                ],
                 loadData: ["model"]
             }
         },
@@ -65,10 +79,10 @@ export const carFormDefinition: FormDefinition = {
             validators: ["required", "in:petrol,diesel,electric,hybrid"],
             config: {
                 data: [
-                    { value: "petrol", label: "Petrol" },
-                    { value: "diesel", label: "Diesel" },
-                    { value: "electric", label: "Electric" },
-                    { value: "hybrid", label: "Hybrid" }
+                    {value: "petrol", label: "Petrol"},
+                    {value: "diesel", label: "Diesel"},
+                    {value: "electric", label: "Electric"},
+                    {value: "hybrid", label: "Hybrid"}
                 ]
             }
         },
@@ -79,8 +93,8 @@ export const carFormDefinition: FormDefinition = {
             validators: ["required", "in:manual,automatic"],
             config: {
                 data: [
-                    { value: "manual", label: "Manual" },
-                    { value: "automatic", label: "Automatic" }
+                    {value: "manual", label: "Manual"},
+                    {value: "automatic", label: "Automatic"}
                 ]
             }
         },
@@ -147,16 +161,16 @@ export const carFormDefinition: FormDefinition = {
         vehicleGroup: {
             type: "GROUP",
             value: ["brand", "model", "trim"],
-            config: { title: "Vehicle Selection" }
+            config: {title: "Vehicle Selection"}
         },
 
         specsGroup: {
-            type: "GROUP",
+            type: "TABS",
             value: {
                 engineData: ["engine", "horsepower", "fuelType", "transmission"],
                 vehicleId: ["vin"]
             },
-            config: { title: "Vehicle Specifications" }
+            config: {title: "Vehicle Specifications"}
         },
 
         ownerGroup: {
@@ -169,7 +183,7 @@ export const carFormDefinition: FormDefinition = {
                 "registrationDate",
                 "termsAccepted"
             ],
-            config: { title: "Owner Information" }
+            config: {title: "Owner Information"}
         }
     }
 };
@@ -182,7 +196,7 @@ export const StepDemo = () => {
             console.log("Submitting", data);
         }
     };
-    return <Container size={"xl"}  >
-        <FormGenerator definition={carFormDefinition} handleSubmit={handleSubmit} />
+    return <Container size={"xl"}>
+        <FormGenerator definition={carFormDefinition} handleSubmit={handleSubmit}/>
     </Container>;
 }

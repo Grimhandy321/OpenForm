@@ -53,7 +53,7 @@ export const useComponentsStore: UseBoundStore<
         TEXTAREA: (props) => <Textarea {...props} autosize />,
         SELECT: (props) => <CustomSelect {...props} />,
         DATE: (props) => <FormatedDateInput {...props} />,
-        BOOLEAN: (props) => <Checkbox {...props} />,
+        BOOLEAN: (props) => <Checkbox pt={"xs"} {...props} />,
         TABLE: (props) => <TableGenerator {...props} />,
         CUSTOM: {},
     },

@@ -18,7 +18,7 @@ export const StepFromGenerator: FC<{ handleSubmit: (data: object) => any;form: R
 
         const groups = Object.entries(store.steps)[active][1];
         if (!groups) return;
-        store.form.clearErrors();
+        form.clearErrors();
 
         groups.forEach(([, groupKey]) => {
             const group = store.groups[groupKey];
@@ -29,11 +29,11 @@ export const StepFromGenerator: FC<{ handleSubmit: (data: object) => any;form: R
                 : Object.values(group.value).flat();
 
             fields.forEach((field) => {
-                const errors = validateField(field, store.form, store);
+                const errors = validateField(field,form, store);
 
                 if (errors?.length) {
                     hasError = true;
-                    store.form.setFieldError(
+                   form.setFieldError(
                         field,
                         formatErrorMessage(field, errors[0])
                     );
@@ -43,7 +43,7 @@ export const StepFromGenerator: FC<{ handleSubmit: (data: object) => any;form: R
         });
 
         if (!hasError && active < Object.keys(store.steps).length) {
-            store.form.values.step = active; // helper for backend validation
+            form.values.step = active; // helper for backend validation
             setActive((prev) => prev + 1);
         }
     };
@@ -85,7 +85,7 @@ export const StepFromGenerator: FC<{ handleSubmit: (data: object) => any;form: R
                 )}
 
                 {active === Object.keys(store.steps).length ? (
-                    <Button onClick={() => handleSubmit(store.form.getValues())}>
+                    <Button onClick={() => handleSubmit(form.getValues())}>
                         {tr("insurance.submit")}
                     </Button>
                 ) : (

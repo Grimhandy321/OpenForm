@@ -19,7 +19,7 @@ export interface IField {
 export interface IFieldConfig {
     min?: number;
     max?: number;
-    data?: any[];
+    data?:  SelectItem[];
     limit?: number | null;
     cols?: ITableColl[];
     loadData?: string[];

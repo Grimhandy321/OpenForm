@@ -1,23 +1,23 @@
-import { type FC, useState, useEffect } from "react";
-import { type FormDefinition, useFormStore } from "../store/useFormStore.ts";
-import { type FieldComponents, useComponentsStore } from "../store/useComponentsStore.tsx";
-import { ExpressionEvaluator } from "../store/ExpressionEvaluator.ts";
-import { formatToUTCDate } from "../helpers.ts";
-import type { FieldConfig } from "../types.ts";
-import { useCascadeDropDown } from "../hooks/useCascadeDropDown.ts";
-import { FormInputElementWraper } from "../componets/FormInputElementWraper.tsx";
-import { Box, Button, Container, Grid, Group, Paper, Tabs } from "@mantine/core";
-import { useForm } from "@mantine/form";
-import { StepFromGenerator } from "./StepFormGenerator.tsx";
-import { useTranslator } from "../hooks/translator.ts";
+import {type FC, useState, useEffect} from "react";
+import {type FormDefinition, useFormStore} from "../store/useFormStore.ts";
+import {type FieldComponents, useComponentsStore} from "../store/useComponentsStore.tsx";
+import {ExpressionEvaluator} from "../store/ExpressionEvaluator.ts";
+import {formatToUTCDate} from "../helpers.ts";
+import type {FieldConfig} from "../types.ts";
+import {useCascadeDropDown} from "../hooks/useCascadeDropDown.ts";
+import {FormInputElementWraper} from "../componets/FormInputElementWraper.tsx";
+import {Box, Button, Container, Grid, Group, Paper, Tabs} from "@mantine/core";
+import {useForm} from "@mantine/form";
+import {StepFromGenerator} from "./StepFormGenerator.tsx";
+import {useTranslator} from "../hooks/translator.ts";
 
 // ====================== HOOK: useFieldProps ======================
 export const useFieldProps = (fieldId: string, form: ReturnType<typeof useForm>): FieldConfig => {
     const cascadeDropdown = useCascadeDropDown();
     const field = useFormStore((state) => state.fields[fieldId]);
 
-    if (!field) return { style: { display: "none" } };
-    if (field.state === "HIDDEN") return { style: { display: "none" } };
+    if (!field) return {style: {display: "none"}};
+    if (field.state === "HIDDEN") return {style: {display: "none"}};
 
     const value = form.values[fieldId];
 
@@ -27,8 +27,9 @@ export const useFieldProps = (fieldId: string, form: ReturnType<typeof useForm>)
         disabled: field.state === "VIEW",
         readOnly: field.state === "VIEW",
         error: field.error ?? form.errors[fieldId] as string ?? undefined,
-        dataloading:field.loading ? value : undefined,
-        onChange: () => {}, // No-op for VIEW state
+        dataloading: field.loading ? value : undefined,
+        onChange: () => {
+        }, // No-op for VIEW state
     };
 
     switch (field.type) {
@@ -118,13 +119,13 @@ export const useFieldProps = (fieldId: string, form: ReturnType<typeof useForm>)
         };
     }
 
-    return { value: value ?? undefined, ...returnData };
+    return {value: value ?? undefined, ...returnData};
 };
 
 // ====================== FIELD COMPONENT ======================
-export const GenerateField: FC<{ fieldId: string; form: ReturnType<typeof useForm> }> = ({ fieldId, form }) => {
-    const { fields } = useFormStore();
-    const { components } = useComponentsStore();
+export const GenerateField: FC<{ fieldId: string; form: ReturnType<typeof useForm> }> = ({fieldId, form}) => {
+    const {fields} = useFormStore();
+    const {components} = useComponentsStore();
 
     const field = fields[fieldId];
     if (!field) return null;
@@ -134,11 +135,11 @@ export const GenerateField: FC<{ fieldId: string; form: ReturnType<typeof useFor
     if (field.type === "CUSTOM") {
         const CustomComponent = components.CUSTOM[field.component || "default"];
         if (!CustomComponent) return null;
-        return <CustomComponent {...inputProps} fieldId={fieldId} form={form} />;
+        return <CustomComponent {...inputProps} fieldId={fieldId} form={form}/>;
     }
 
     const FieldComponent = components[field.type] || components.TEXT;
-    return <FieldComponent {...inputProps} fieldId={fieldId} form={form} />;
+    return <FieldComponent {...inputProps} fieldId={fieldId} form={form}/>;
 };
 
 // ====================== GROUP COMPONENT ======================
@@ -153,19 +154,17 @@ const setGroupHidden = (groupId: string, hidden: boolean) => {
     });
 };
 
-export const GenerateGroup: FC<{ groupId: string; form: ReturnType<typeof useForm> }> = ({ groupId, form }) => {
+export const GenerateGroup: FC<{ groupId: string; form: ReturnType<typeof useForm> }> = ({groupId, form}) => {
     const group = useFormStore().groups[groupId];
-    const { tr } = useTranslator();
+    const {tr} = useTranslator();
 
     if (!group || group.state === "HIDDEN") return null;
 
     if (group.type === "TABS") {
         const tabs = group.value as Record<string, string[]>;
 
-
-
         return (
-            <Grid.Col span={{ base: 12, sm: group.config?.colls ?? 6 }}>
+            <Grid.Col span={{base: 12, sm: group.config?.colls ?? 6}}>
                 <Container px="0.3em" mx="0px" size="1000rem">
                     <Paper my="xs" shadow="xs" withBorder>
                         <Tabs defaultValue={Object.keys(tabs)[0]} keepMounted>
@@ -178,9 +177,9 @@ export const GenerateGroup: FC<{ groupId: string; form: ReturnType<typeof useFor
                             </Tabs.List>
 
                             {Object.entries(tabs).map(([key, value]) => (
-                                <Tabs.Panel key={key} value={key}>
+                                <Tabs.Panel key={key} value={key} p={'sm'}>
                                     {value.map((field: string) => (
-                                        <GenerateField key={field} fieldId={field} form={form} />
+                                        <GenerateField key={field} fieldId={field} form={form}/>
                                     ))}
                                 </Tabs.Panel>
                             ))}
@@ -198,7 +197,7 @@ export const GenerateGroup: FC<{ groupId: string; form: ReturnType<typeof useFor
             collabsable={group.config?.collabsable ?? false}
         >
             {(group.value as string[]).map((field: string) => (
-                <GenerateField key={field} fieldId={field} form={form} />
+                <GenerateField key={field} fieldId={field} form={form}/>
             ))}
         </FormInputElementWraper>
     );
@@ -209,7 +208,7 @@ export const FormGenerator: FC<{
     definition: FormDefinition;
     components?: FieldComponents;
     handleSubmit: (data: object, action?: string) => any;
-}> = ({ definition, components, handleSubmit }) => {
+}> = ({definition, components, handleSubmit}) => {
     const [columns, setColumns] = useState(12);
     const store = useFormStore();
     const componentsStore = useComponentsStore();
@@ -221,7 +220,7 @@ export const FormGenerator: FC<{
     useEffect(() => {
 
         componentsStore.updateComponents(components ?? {});
-        store.initializeFrom( definition);
+        store.initializeFrom(definition);
 
         for (const fieldId in definition.fields) {
             const field = definition.fields[fieldId];
@@ -258,7 +257,7 @@ export const FormGenerator: FC<{
             <Box>
                 <Grid columns={columns} gutter="xs">
                     {Object.keys(groups).map((index) => (
-                        <GenerateGroup key={index} groupId={index} form={form} />
+                        <GenerateGroup key={index} groupId={index} form={form}/>
                     ))}
                 </Grid>
                 <Group mt="md">
@@ -280,7 +279,7 @@ export const FormGenerator: FC<{
     } else {
         return (
             <Box>
-                <StepFromGenerator handleSubmit={handleSubmit} form={form} />
+                <StepFromGenerator handleSubmit={handleSubmit} form={form}/>
             </Box>
         );
     }
