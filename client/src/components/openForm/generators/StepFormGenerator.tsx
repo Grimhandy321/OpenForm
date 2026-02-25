@@ -50,10 +50,13 @@ export const StepFromGenerator: FC<{ handleSubmit: (data: object) => any;form: R
         setActive((prev) => Math.max(prev - 1, 0));
     };
 
+    const steps = Object.entries(store.steps);
+    const lastIndex = steps.length - 1;
+
     return (
         <>
             <Stepper active={active}>
-                {Object.entries(store.steps).map(([key, step]) => (
+                {steps.slice(0, lastIndex).map(([key, step]) => (
                     <Stepper.Step
                         key={key}
                         label={tr(`${key}.label`)}
@@ -61,20 +64,24 @@ export const StepFromGenerator: FC<{ handleSubmit: (data: object) => any;form: R
                     >
                         <StepWrapper>
                             <Grid>
-                                {step.map(( item,index) => (
-                                    <GenerateGroup key={index} groupId={item} form={form}/>
-                                    )
-                                )}
+                                {step.map((item, index) => (
+                                    <GenerateGroup key={index} groupId={item} form={form} />
+                                ))}
                             </Grid>
                         </StepWrapper>
                     </Stepper.Step>
                 ))}
 
                 <Stepper.Completed>
-                    <StepWrapper/>
+                    <StepWrapper>
+                        <Grid>
+                            {steps[lastIndex][1].map((item: string, index: number) => (
+                                <GenerateGroup key={index} groupId={item} form={form} />
+                            ))}
+                        </Grid>
+                    </StepWrapper>
                 </Stepper.Completed>
             </Stepper>
-
             <Group justify="center" mt="xl" mb="md">
                 {active !== 0 && (
                     <Button variant="default" onClick={previousStep}>

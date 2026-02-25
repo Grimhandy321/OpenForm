@@ -26,6 +26,7 @@ export const formatErrorMessage = (fieldId: string, error: string) => {
 const isEmptyValue = (val: unknown) =>
     val === null ||
     val === undefined ||
+    val === false ||
     (typeof val === "string" && val.trim() === "") ||
     (Array.isArray(val) && val.length === 0);
 
@@ -74,12 +75,16 @@ export function validateSingleRule(ruleString: string, value: unknown, allValues
             if (s.length !== Number(p)) return "size";
             continue;
         }
+        if(r === "string"){
+            if(empty) continue;
+            if(typeof value === 'string')continue;
+            return "string";
+        }
+
         if (r === "min" || r === "max") {
             if (empty) continue;
-            const paramNumeric = p !== null && !Number.isNaN(Number(p));
-            if (paramNumeric) {
+            if (!Number.isNaN(Number(p))) {
                 const n = Number(value as any);
-                if (Number.isNaN(n)) return "numeric";
                 if (r === "min" && n < Number(p)) return "min";
                 if (r === "max" && n > Number(p)) return "max";
             } else {
@@ -161,7 +166,6 @@ export function validateSingleRule(ruleString: string, value: unknown, allValues
         if (r === "in" && p) {
             const list = p.split(",").map((s) => s.trim());
             if (!list.includes(String(value ?? ""))) return "in";
-            continue;
         }
     }
 
