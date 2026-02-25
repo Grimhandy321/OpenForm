@@ -62,17 +62,12 @@ export type Stepper = {
 export type Button ={
     id: string;
     value: string;
+    type?: "VALIDATION" | "DRAFT";
     color?: MantineColor;
 }
 export type Message =  {
     type: "error" | "ok" | "green";
     message: string;
-}
-export type Tab = {
-    state: "EDITABLE" | "VIEW"
-    action: string,
-    label: string,
-    fields: Record<string,IField>,
 }
 
 export interface TFormStore {

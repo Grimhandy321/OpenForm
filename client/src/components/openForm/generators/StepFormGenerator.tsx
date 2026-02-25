@@ -19,10 +19,8 @@ export const StepFromGenerator: FC<{ handleSubmit: (data: object) => any;form: R
         const groups = Object.entries(store.steps)[active][1];
         if (!groups) return;
         form.clearErrors();
-
-        groups.forEach(([, groupKey]) => {
+        groups.forEach((groupKey) => {
             const group = store.groups[groupKey];
-
             if (!group || group.state === "HIDDEN") return;
             const fields = Array.isArray(group.value)
                 ? group.value
@@ -43,7 +41,7 @@ export const StepFromGenerator: FC<{ handleSubmit: (data: object) => any;form: R
         });
 
         if (!hasError && active < Object.keys(store.steps).length) {
-            form.values.step = active; // helper for backend validation
+            form.values.step = active; // helper for validation
             setActive((prev) => prev + 1);
         }
     };

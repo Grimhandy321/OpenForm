@@ -10,6 +10,7 @@ import {Box, Button, Container, Grid, Group, Paper, Tabs} from "@mantine/core";
 import {useForm} from "@mantine/form";
 import {StepFromGenerator} from "./StepFormGenerator.tsx";
 import {useTranslator} from "../hooks/translator.ts";
+import {formatErrorMessage, validateField} from "../validation/ruleValidation.ts";
 
 // ====================== HOOK: useFieldProps ======================
 export const useFieldProps = (fieldId: string, form: ReturnType<typeof useForm>): FieldConfig => {
@@ -203,22 +204,92 @@ export const GenerateGroup: FC<{ groupId: string; form: ReturnType<typeof useFor
     );
 };
 
+export const BasicFormGenerator: FC<{
+    handleSubmit: (data: object, action?: string) => any;
+    form: ReturnType<typeof useForm>
+}> = ({handleSubmit, form}) => {
+    const [columns, setColumns] = useState(12);
+    const store = useFormStore();
+    const groups = store.groups ?? {};
+
+    const submit = (values: any, action?: string) => {
+        let hasError = false;
+        form.clearErrors();
+        Object.keys(groups).forEach((groupKey) => {
+            const group = store.groups[groupKey];
+            if (!group || group.state === "HIDDEN") return;
+            const fields = Array.isArray(group.value)
+                ? group.value
+                : Object.values(group.value).flat();
+
+            fields.forEach((field) => {
+                const errors = validateField(field,form, store);
+
+                if (errors?.length) {
+                    hasError = true;
+                    form.setFieldError(
+                        field,
+                        formatErrorMessage(field, errors[0])
+                    );
+                }
+
+            });
+        });
+
+        if (!hasError) {
+            handleSubmit(values, action);
+        }
+        return;
+    };
+    useEffect(() => {
+        function updateColumns() {
+            if (window.innerWidth < 1000) setColumns(6);
+            else if (window.innerWidth < 1500) setColumns(12);
+            else setColumns(18);
+        }
+
+        window.addEventListener("resize", updateColumns);
+        updateColumns();
+        return () => window.removeEventListener("resize", updateColumns);
+    }, []);
+
+    return (
+        <Box>
+            <Grid columns={columns} gutter="xs">
+                {Object.keys(groups).map((index) => (
+                    <GenerateGroup key={index} groupId={index} form={form}/>
+                ))}
+            </Grid>
+            <Group mt="md">
+                {store.buttons?.map((btn) => (
+                    <Button
+                        key={btn.id}
+                        color={btn.color || "blue"}
+                        type={btn.id === "submit" ? "submit" : "button"}
+                        onClick={() => {
+                            if (btn.id !== "submit") submit(form.values, btn.id);
+                        }}
+                    >
+                        {btn.value}
+                    </Button>
+                ))}
+            </Group>
+        </Box>
+    );
+}
+
 // ====================== FORM GENERATOR ======================
 export const FormGenerator: FC<{
     definition: FormDefinition;
     components?: FieldComponents;
     handleSubmit: (data: object, action?: string) => any;
 }> = ({definition, components, handleSubmit}) => {
-    const [columns, setColumns] = useState(12);
-    const store = useFormStore();
     const componentsStore = useComponentsStore();
-    const groups = store.groups ?? {};
     const form = useForm({});
-
+    const store = useFormStore();
 
     // initialize
     useEffect(() => {
-
         componentsStore.updateComponents(components ?? {});
         store.initializeFrom(definition);
 
@@ -236,45 +307,12 @@ export const FormGenerator: FC<{
                 store.setCsrfToken((field.value as string) ?? "");
             }
         }
-
-        function updateColumns() {
-            if (window.innerWidth < 1000) setColumns(6);
-            else if (window.innerWidth < 1500) setColumns(12);
-            else setColumns(18);
-        }
-
-        window.addEventListener("resize", updateColumns);
-        updateColumns();
-        return () => window.removeEventListener("resize", updateColumns);
     }, []);
 
-    const submit = (values: any, action?: string) => {
-        handleSubmit(values, action);
-    };
 
     if (!store.steps || Object.keys(store.steps).length === 0) {
         return (
-            <Box>
-                <Grid columns={columns} gutter="xs">
-                    {Object.keys(groups).map((index) => (
-                        <GenerateGroup key={index} groupId={index} form={form}/>
-                    ))}
-                </Grid>
-                <Group mt="md">
-                    {definition.buttons?.map((btn) => (
-                        <Button
-                            key={btn.id}
-                            color={btn.color || "blue"}
-                            type={btn.id === "submit" ? "submit" : "button"}
-                            onClick={() => {
-                                if (btn.id !== "submit") submit(form.values, btn.id);
-                            }}
-                        >
-                            {btn.value}
-                        </Button>
-                    ))}
-                </Group>
-            </Box>
+            <BasicFormGenerator handleSubmit={handleSubmit} form={form}/>
         );
     } else {
         return (

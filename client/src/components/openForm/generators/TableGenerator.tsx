@@ -23,9 +23,6 @@ export const TableGenerator: FC<{ fieldId: string,form: ReturnType<typeof useFor
 
     if (!field) return null;
 
-    const dateCols =
-        field.config?.cols?.filter((c) => c.type === "DATE").map((c) => c.id) ?? [];
-
     const defaultItem =
         field.config?.cols?.reduce((acc, col) => {
             acc[col.id] = col.default ?? "";
@@ -107,15 +104,52 @@ export const TableGenerator: FC<{ fieldId: string,form: ReturnType<typeof useFor
         forceUpdate();
     };
 
-    const rows =  (field.state === "VIEWONLY"
+    const rows = (
+        field.state === "VIEWONLY"
             ? field.value ?? []
             : form.values[fieldId] ?? []
     ).map((item: any) => {
-        const clone = {...item};
+        const clone: any = { ...item };
 
-        dateCols.forEach((id) => {
-            if (clone[id] && !(clone[id] instanceof Date)) {
-                clone[id] = new Date(clone[id] * 1000);
+        field.config?.cols?.forEach((col) => {
+            const val = clone[col.id];
+            if (val == null) return;
+
+            if (col.type === "DATE") {
+                if (val instanceof Date) return;
+
+                if (typeof val === "number") {
+                    clone[col.id] = new Date(val * 1000);
+                    return;
+                }
+
+                if (typeof val === "string") {
+                    const parsed = new Date(val);
+                    if (!isNaN(parsed.getTime())) clone[col.id] = parsed;
+                    return;
+                }
+            }
+
+            if (col.type === "FILE") {
+                if (val instanceof File) {
+                    clone[col.id] = val.name;
+                    return;
+                }
+
+                if (typeof val === "string") {
+                    clone[col.id] = val.split("/").pop();
+                    return;
+                }
+            }
+            if (col.type === "SELECT") {
+                if (typeof val === "object") {
+                    clone[col.id] = val.label ?? val.value;
+                    return;
+                }
+
+                // if backend returns raw value, map to label
+                const option = col.data?.find((o: any) => o.value === val);
+                if (option) clone[col.id] = option.label;
             }
         });
 

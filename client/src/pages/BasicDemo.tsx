@@ -156,8 +156,8 @@ const deffinition: FormDefinition = {
         }
     },
     "buttons": [
-        {"id": "save", "value": "Save", "color": "blue"},
-        {"id": "submit", "value": "Submit", "color": "green"}
+        {"id": "save", "value": "Save", "color": "blue" ,type: "DRAFT"},
+        {"id": "submit", "value": "Submit", "color": "green",type: "VALIDATION"}
     ],
 }
 
@@ -170,7 +170,7 @@ export const BasicDemo = () => {
             console.log("Submitting", data);
         }
     };
-    return <Container size={"xl"} bg ='dark' >
+    return <Container size={"xl"} >
         <FormGenerator definition={deffinition} handleSubmit={handleSubmit} />
     </Container>;
 }
