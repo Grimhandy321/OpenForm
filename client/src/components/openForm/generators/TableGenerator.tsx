@@ -122,9 +122,37 @@ export const TableGenerator: FC<{ fieldId: string,form: ReturnType<typeof useFor
         return clone;
     });
 
+    const aggregates: Record<string, number> = {};
+
+    field.config?.cols?.forEach((col) => {
+        if (!col.aggregate) return;
+
+        aggregates[col.id] = rows.reduce((acc: number, row: any) => {
+            let value = row[col.id];
+
+            if (col.expression) {
+                value = evaluator.evaluate(col.expression, row);
+            }
+
+            const num = Number(value);
+            return acc + (isNaN(num) ? 0 : num);
+        }, 0);
+    });
+
     return (
         <>
-            <ScrollArea mah={400} mih={220}>
+            {(field.state === "EDITABLE" || field.state === "ADDABLE") && (
+                <Button
+                    mb="xs"
+                    size="xs"
+                    color="green"
+                    onClick={() => openEditor({...defaultItem, created: true})}
+                >
+                    {tr("table.add.record")}
+                </Button>
+            )}
+
+            <ScrollArea  mah={400} mih={220}>
                 <Table striped highlightOnHover withTableBorder>
                     <Table.Thead>
                         <Table.Tr>
@@ -148,7 +176,6 @@ export const TableGenerator: FC<{ fieldId: string,form: ReturnType<typeof useFor
                         {rows.map((row: any, rIndex: number) => (
                             <Table.Tr key={rIndex}>
                                 {field.config?.cols?.map((col) => {
-                                    console.log(col)
                                     if (col.state === "HIDDEN") return null;
 
                                     let value = row[col.id];
@@ -190,19 +217,37 @@ export const TableGenerator: FC<{ fieldId: string,form: ReturnType<typeof useFor
                             </Table.Tr>
                         ))}
                     </Table.Tbody>
+
+                    {Object.keys(aggregates).length > 0 && (
+                        <Table.Tfoot>
+                            <Table.Tr>
+                                {field.config?.cols?.map((col) => {
+                                    if (col.state === "HIDDEN") return null;
+
+                                    if (!col.aggregate) {
+                                        return <Table.Td key={col.id} />;
+                                    }
+
+                                    return (
+                                        <Table.Td key={col.id}>
+                                            <strong>
+                                                {aggregates[col.id].toLocaleString(undefined, {
+                                                    minimumFractionDigits: 2,
+                                                    maximumFractionDigits: 2,
+                                                })}
+                                            </strong>
+                                        </Table.Td>
+                                    );
+                                })}
+
+                                {(field.state === "EDITABLE" ||
+                                    field.state === "ADDABLE") && <Table.Td />}
+                            </Table.Tr>
+                        </Table.Tfoot>
+                    )}
                 </Table>
             </ScrollArea>
 
-            {(field.state === "EDITABLE" || field.state === "ADDABLE") && (
-                <Button
-                    mt="sm"
-                    size="xs"
-                    color="green"
-                    onClick={() => openEditor({...defaultItem, created: true})}
-                >
-                    {tr("table.add.record")}
-                </Button>
-            )}
 
             <Modal
                 opened={openForm}

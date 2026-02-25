@@ -27,7 +27,7 @@ export const useFieldProps = (fieldId: string, form: ReturnType<typeof useForm>)
         disabled: field.state === "VIEW",
         readOnly: field.state === "VIEW",
         error: field.error ?? form.errors[fieldId] as string ?? undefined,
-        dataLoading: field.loading ?? false,
+        dataloading:field.loading ? value : undefined,
         onChange: () => {}, // No-op for VIEW state
     };
 

@@ -48,7 +48,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
                 value={stringValue as string}
                 onChange={handleChange}
                 rightSection={((data ?? []).length > 0 ? (data ??  []).length :
-                    rest.dataLoading ? <Spinner
+                    rest.dataloading ? <Spinner
                         size={25}
                         color="#007aff"
                         loading={true}

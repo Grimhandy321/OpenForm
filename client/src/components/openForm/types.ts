@@ -114,7 +114,7 @@ export interface FieldConfig<TValue = any, TData = any> {
     minDate?: Date;
     clearable?: boolean;
     checked?: boolean;
-    dataLoading?: boolean;
+    dataloading?: boolean;
     form?: any;
     //  arbitrary props like style, className, id, etc.
     [key: string]: any;
