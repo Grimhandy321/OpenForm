@@ -1,6 +1,5 @@
 import {create, type StoreApi, type UseBoundStore} from "zustand";
 import type {MantineColor} from "@mantine/core";
-import {formatToUTCDate} from "../helpers.ts";
 
 export interface IField {
     state: "EDITABLE" | "VIEW" | "HIDDEN" | "VIEWONLY" | "TABLE" | "ADDABLE" ;
@@ -116,7 +115,7 @@ export interface TFormStore {
 export type FormDefinition = {
     fields: Record<string, IField>;
     buttons: Button[];
-    steps: FormSteps;
+    steps?: FormSteps;
     groups: Record<string, FormGroup>;
 };
 
@@ -203,24 +202,7 @@ export const useFormStore: UseBoundStore<StoreApi<TFormStore>> = create<TFormSto
             steps:data.steps
         });
 
-        for (const fieldId in data.fields) {
-            const field = data.fields[fieldId];
 
-            if (field.value && field.state !== "VIEWONLY") {
-                if (field.type === "DATE" && typeof field.value === "number") {
-                    form.setFieldValue(
-                        fieldId,
-                        formatToUTCDate(new Date(field.value * 1000))
-                    );
-                } else {
-                    form.setFieldValue(fieldId, field.value);
-                }
-            }
-
-            if (fieldId === "csrf_token") {
-                set({ csrfToken: (field.value as string) ?? "" });
-            }
-        }
     },
 }));
 

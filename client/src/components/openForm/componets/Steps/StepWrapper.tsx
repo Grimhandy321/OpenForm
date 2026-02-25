@@ -3,7 +3,7 @@ import {
     Container, type MantineSize,
     Paper
 } from "@mantine/core";
-import classes       from "../../style/InsuranceCreate.module.css";
+import classes       from "../../style/Misc.module.css";
 import type {FC, ReactNode} from "react";
 
 export namespace StepWrapper {

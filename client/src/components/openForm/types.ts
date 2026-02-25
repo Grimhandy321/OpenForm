@@ -116,6 +116,9 @@ export interface FieldConfig<TValue = any, TData = any> {
     checked?: boolean;
     dataLoading?: boolean;
     form?: any;
+    //  arbitrary props like style, className, id, etc.
+    [key: string]: any;
+
 }
 
 export interface EditForm {

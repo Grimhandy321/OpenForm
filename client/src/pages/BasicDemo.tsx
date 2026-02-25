@@ -159,10 +159,6 @@ const deffinition: FormDefinition = {
         {"id": "save", "value": "Save", "color": "blue"},
         {"id": "submit", "value": "Submit", "color": "green"}
     ],
-    "stepper": {
-        "steps": ["incident", "dates", "parts", "files", "comments"],
-        "currentStep": 0
-    },
 }
 
 

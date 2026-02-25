@@ -5,8 +5,9 @@ import {useTranslator} from "../hooks/translator.ts";
 import { GenerateGroup} from "./FormGenerator.tsx";
 import {formatErrorMessage, validateField} from "../validation/ruleValidation.ts";
 import {StepWrapper} from "../componets/Steps/StepWrapper.tsx";
+import {useForm} from "@mantine/form";
 
-export const StepFromGenerator: FC<{ handleSubmit: (data: object) => any }> = ({handleSubmit}) => {
+export const StepFromGenerator: FC<{ handleSubmit: (data: object) => any;form: ReturnType<typeof useForm>  }> = ({handleSubmit,form}) => {
     const [active, setActive] = useState(0);
     const {tr} = useTranslator();
     const store = useFormStore();
@@ -63,7 +64,7 @@ export const StepFromGenerator: FC<{ handleSubmit: (data: object) => any }> = ({
                         <StepWrapper>
                             <Grid>
                                 {step.map(( item) => (
-                                    <GenerateGroup groupId={item}/>
+                                    <GenerateGroup groupId={item} form={form}/>
                                     )
                                 )}
                             </Grid>

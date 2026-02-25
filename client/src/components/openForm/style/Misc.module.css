@@ -1,0 +1,63 @@
+.boxStyle {
+    background-color: var(--mantine-color-gray-1);
+    padding: var(--mantine-spacing-sm);
+    border-radius: var(--mantine-radius-md);
+}
+
+
+.boxStyleGrey {
+    background-color: var(--mantine-color-gray-3);
+    padding: var(--mantine-spacing-sm);
+    border-radius: var(--mantine-radius-md);
+}
+
+.boxStyleLightGrey {
+    background-color: var(--mantine-color-gray-1);
+    padding: var(--mantine-spacing-sm);
+    border-radius: var(--mantine-radius-md);
+}
+.errorBox {
+    background-color: var(--mantine-color-red-3);
+    text-align: center;
+    padding: var(--mantine-spacing-xl);
+    border-radius: var(--mantine-radius-md);
+}
+
+.inputStyle {
+    margin-top: var(--mantine-spacing-sm);
+}
+
+.inputCheckbox {
+    padding: var(--mantine-spacing-xs);
+}
+
+.inputBars {
+    width: 100%;
+}
+.textInputToolTip {
+    padding-top: 2.5rem;
+    padding-left: 0;
+}
+
+.inputBetterVisibility > div > input {
+    background: white !important;
+    color: black !important;
+}
+.anchor{
+    text-decoration: none;
+    background-color: var(--mantine-color-blue-5);
+    color:white;
+    display: flex;
+    justify-content: center;
+    border-radius: var(--mantine-radius-md);
+    padding:10px;
+}
+.tab {
+    &[data-active] {
+        z-index: 1;
+        background-color: var(--mantine-color-blue-filled);
+        border-color: var(--mantine-color-blue-filled);
+        color: var(--mantine-color-white);
+        border-radius: 5px 5px 0 0;
+    }
+}
