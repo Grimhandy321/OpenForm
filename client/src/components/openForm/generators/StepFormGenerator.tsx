@@ -61,8 +61,8 @@ export const StepFromGenerator: FC<{ handleSubmit: (data: object) => any;form: R
                     >
                         <StepWrapper>
                             <Grid>
-                                {step.map(( item) => (
-                                    <GenerateGroup groupId={item} form={form}/>
+                                {step.map(( item,index) => (
+                                    <GenerateGroup key={index} groupId={item} form={form}/>
                                     )
                                 )}
                             </Grid>

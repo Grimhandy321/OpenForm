@@ -188,6 +188,62 @@ export const carFormDefinition: FormDefinition = {
     }
 };
 
+
+// ====================== Demo loader ======================
+export const demoLoader = async ({ target, source, value }: { target: string, source: string, value: any }) => {
+
+    console.debug( target, source, value);
+    // simulate network delay
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    // return mock data depending on the source and selected value
+    if (source === "brand") {
+        if (value === 1) return [
+            { value: 101, label: "BMW 3 Series" },
+            { value: 102, label: "BMW 5 Series" },
+        ];
+        if (value === 2) return [
+            { value: 201, label: "VW Golf" },
+            { value: 202, label: "VW Passat" },
+        ];
+        if (value === 3) return [
+            { value: 301, label: "Skoda Octavia" },
+            { value: 302, label: "Skoda Superb" },
+        ];
+    }
+
+    if (source === "model") {
+        if (value === 101) return [
+            { value: 1001, label: "320i" },
+            { value: 1002, label: "330i" },
+        ];
+        if (value === 102) return [
+            { value: 1003, label: "520i" },
+            { value: 1004, label: "530i" },
+        ];
+        if (value === 201) return [
+            { value: 2001, label: "Golf 1.4" },
+            { value: 2002, label: "Golf 2.0" },
+        ];
+        if (value === 202) return [
+            { value: 2003, label: "Passat 1.4" },
+            { value: 2004, label: "Passat 2.0" },
+        ];
+        if (value === 301) return [
+            { value: 3001, label: "Octavia Ambition" },
+            { value: 3002, label: "Octavia Style" },
+        ];
+        if (value === 302) return [
+            { value: 3003, label: "Superb Ambition" },
+            { value: 3004, label: "Superb Style" },
+        ];
+    }
+
+    // fallback empty array
+    return [];
+};
+
+
 export const StepDemo = () => {
     const handleSubmit = (data: object, action?: string) => {
         if (action === "save") {
@@ -196,7 +252,10 @@ export const StepDemo = () => {
             console.log("Submitting", data);
         }
     };
+
+
+
     return <Container size={"xl"}>
-        <FormGenerator definition={carFormDefinition} handleSubmit={handleSubmit}/>
+        <FormGenerator definition={carFormDefinition} cascadeLoderFn={demoLoader}  handleSubmit={handleSubmit}/>
     </Container>;
 }

@@ -11,6 +11,7 @@ import {useForm} from "@mantine/form";
 import {StepFromGenerator} from "./StepFormGenerator.tsx";
 import {useTranslator} from "../hooks/translator.ts";
 import {formatErrorMessage, validateField} from "../validation/ruleValidation.ts";
+import {type CascadeLoaderFn, useCascadeStore} from "../store/useCascadeStore.ts";
 
 // ====================== HOOK: useFieldProps ======================
 export const useFieldProps = (fieldId: string, form: ReturnType<typeof useForm>): FieldConfig => {
@@ -283,16 +284,20 @@ export const FormGenerator: FC<{
     definition: FormDefinition;
     components?: FieldComponents;
     handleSubmit: (data: object, action?: string) => any;
-}> = ({definition, components, handleSubmit}) => {
+    cascadeLoderFn?: CascadeLoaderFn;
+}> = ({definition, components, handleSubmit,cascadeLoderFn}) => {
     const componentsStore = useComponentsStore();
     const form = useForm({});
     const store = useFormStore();
+    const {setLoader} = useCascadeStore();
 
     // initialize
     useEffect(() => {
         componentsStore.updateComponents(components ?? {});
         store.initializeFrom(definition);
-
+        if(cascadeLoderFn) {
+            setLoader(cascadeLoderFn)
+        }
         for (const fieldId in definition.fields) {
             const field = definition.fields[fieldId];
             if (field.value && field.state !== "VIEWONLY") {
