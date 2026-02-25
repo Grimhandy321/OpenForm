@@ -156,10 +156,13 @@ const setGroupHidden = (groupId: string, hidden: boolean) => {
 export const GenerateGroup: FC<{ groupId: string; form: ReturnType<typeof useForm> }> = ({ groupId, form }) => {
     const group = useFormStore().groups[groupId];
     const { tr } = useTranslator();
+
     if (!group || group.state === "HIDDEN") return null;
 
     if (group.type === "TABS") {
         const tabs = group.value as Record<string, string[]>;
+
+
 
         return (
             <Grid.Col span={{ base: 12, sm: group.config?.colls ?? 6 }}>
@@ -213,10 +216,12 @@ export const FormGenerator: FC<{
     const groups = store.groups ?? {};
     const form = useForm({});
 
+
     // initialize
     useEffect(() => {
+
         componentsStore.updateComponents(components ?? {});
-        store.initializeFrom(form, definition);
+        store.initializeFrom( definition);
 
         for (const fieldId in definition.fields) {
             const field = definition.fields[fieldId];

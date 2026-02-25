@@ -5,8 +5,9 @@ import { Checkbox, NumberInput, Textarea, TextInput } from "@mantine/core";
 import CustomSelect from "../componets/CustomSelect.tsx";
 import FormatedDateInput from "../componets/FormatedDateInput.tsx";
 import { TableGenerator } from "../generators/TableGenerator.tsx";
+import {useForm} from "@mantine/form";
 
-type FieldComponentProps = FieldConfig & { fieldId: string; form?: any };
+type FieldComponentProps = FieldConfig & { fieldId: string; form: ReturnType<typeof useForm>, [key: string]: any; };
 
 export type FieldComponents = {
     NUMBER: FC<FieldComponentProps>;

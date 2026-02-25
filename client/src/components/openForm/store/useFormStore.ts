@@ -82,9 +82,6 @@ export interface TFormStore {
     //
     groups: Record<string, FormGroup>,
     setGroups: (groups: Record<string, FormGroup>) => void,
-    // Form
-    form: any,
-    setForm: (form: any) => void,
     // Fields
     fields: { [p: string]: IField },
     setFields: (fields: { [p: string]: IField }) => void;
@@ -103,8 +100,7 @@ export interface TFormStore {
     setCsrfToken: (token: string) => void;
 
     initializeFrom: (
-        form: any,
-        data: FormDefinition  ,
+        data: FormDefinition
     ) => void;
 }
 
@@ -120,9 +116,6 @@ export const useFormStore: UseBoundStore<StoreApi<TFormStore>> = create<TFormSto
     //Steps
     steps: {},
     setSteps: (steps: FormSteps) => set({steps: steps}),
-    // form
-    form: {},
-    setForm: (form: any) => set({form: form}),
     // Fields
     fields: {},
     setFields: (fields: { [p: string]: IField }) => set({fields: fields}),
@@ -185,12 +178,7 @@ export const useFormStore: UseBoundStore<StoreApi<TFormStore>> = create<TFormSto
     csrfToken: "",
     setCsrfToken: (token: string) => set({csrfToken:token}),
 
-    initializeFrom: (form,data) => {
-        set({form: form});
-        if (!data) return;
-
-        if (!form) return;
-
+    initializeFrom: (data) => {
         set({
             fields: data.fields,
             buttons: data.buttons,

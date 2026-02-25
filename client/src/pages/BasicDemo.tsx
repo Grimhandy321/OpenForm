@@ -130,7 +130,7 @@ const deffinition: FormDefinition = {
         "parts": {
             "state": "EDITABLE",
             "type": "GROUP",
-            "value": ["parts"],
+            "value": ["Parts"],
             "config": {
                 "title": "Parts",
                 "colls": 12
