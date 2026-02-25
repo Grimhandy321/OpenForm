@@ -182,7 +182,7 @@ export const StepDemo = () => {
             console.log("Submitting", data);
         }
     };
-    return <Container size={"xl"} bg ='dark' >
+    return <Container size={"xl"}  >
         <FormGenerator definition={carFormDefinition} handleSubmit={handleSubmit} />
     </Container>;
 }

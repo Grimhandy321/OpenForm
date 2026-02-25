@@ -34,6 +34,12 @@ export const Layout = () => {
                 to="/demo"
                 active={location.pathname === "/demo"}
             />
+            <NavLink
+                label="Step demo"
+                component={Link}
+                to="/stepdemo"
+                active={location.pathname === "/stepdemo"}
+            />
         </AppShell.Navbar>
 
         <AppShell.Main w={"100em"} >
