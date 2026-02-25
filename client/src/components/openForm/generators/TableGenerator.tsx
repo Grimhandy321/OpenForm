@@ -1,271 +1,192 @@
-import {useTranslator} from "../hooks/translator.ts";
-import type { ITableColl} from "../types.ts";
-import {type FC, useCallback, useState} from "react";
-import {useAxiosClient} from "../../api/axios-client.tsx";
-import {ExpressionEvaluator} from "../store/ExpressionEvaluator.ts";
-import {showNotification} from "@mantine/notifications";
-import {IconCheck} from "@tabler/icons-react";
-import {
-    Grid,
-    type GridColumnProps,
-    type GridCustomCellProps,
-    type GridCustomFooterCellProps,
-    GridColumn as Column,
-    GridToolbar
-} from "@progress/kendo-react-grid";
-import {Button,Text} from "@mantine/core";
-import {formatNumber} from "@progress/kendo-intl";
-import {IntlProvider} from "@progress/kendo-react-intl";
-import {EditCommandCell} from "../componets/Cells/EditCommandCell.tsx";
-import {GenerateEditForm} from "./TableFormGenerator.tsx";
-import {useFormStore} from "../store/useFormStore.ts";
+import {type FC, useCallback, useState } from "react";
+import { useTranslator } from "../hooks/translator.ts";
+import { useAxiosClient } from "../../api/axios-client.tsx";
+import { ExpressionEvaluator } from "../store/ExpressionEvaluator.ts";
+import { showNotification } from "@mantine/notifications";
+import { IconCheck } from "@tabler/icons-react";
+import { Button, Text, Table, Group, Modal, ScrollArea } from "@mantine/core";
+import { GenerateEditForm } from "./TableFormGenerator.tsx";
+import { useFormStore } from "../store/useFormStore.ts";
 
-
-export const TableGenerator: FC<{ fieldId: string }> = ({ fieldId}) => {
-    const {tr} = useTranslator();
-    const field = useFormStore(state => state.fields[fieldId]);
-    const form = useFormStore(state => state.form);
-    const dateColId = field?.config?.cols
-        ?.filter((col: ITableColl) => col.type === "DATE")
-        .map((col: ITableColl) => col.id);
-    const [openForm, setOpenForm] = useState<boolean>(false);
-    const [editItem, setEditItem] = useState<any | null>({});
+export const TableGenerator: FC<{ fieldId: string }> = ({ fieldId }) => {
+    const { tr } = useTranslator();
+    const field = useFormStore((state) => state.fields[fieldId]);
+    const form = useFormStore((state) => state.form);
+    const [openForm, setOpenForm] = useState(false);
+    const [editItem, setEditItem] = useState<any | null>(null);
     const axiosClient = useAxiosClient();
-    const [, updateState] = useState<any>();
+    const [, updateState] = useState({});
     const forceUpdate = useCallback(() => updateState({}), []);
     const evaluator = new ExpressionEvaluator();
-    const defaultEditItem = field?.config?.cols?.reduce((acc, item) => {
-        return {
-            ...acc,
-            [item.id]: item.default
-        }
-    }, {});
 
-    const MyEditCommandCell = (props: GridCustomCellProps) => (
-        <EditCommandCell {...props}
-                         handleDelete={(item: any) => {
-                             if (field.config?.action) {
-                                 axiosClient.delete(field.config.action + "/" + item.id)
-                                     .then((response) => {
-                                         form.setFieldValue(fieldId, response.data ?? []);
-                                         showNotification({
-                                             title: tr("success"),
-                                             icon: <IconCheck/>,
-                                             message: "",
-                                             autoClose: 5000,
-                                         });
-                                         forceUpdate();
-                                     })
-                                     .catch((error) => {
-                                         console.error("Error deleting data:", error);
-                                     }).finally(() => {
-                                     setOpenForm(false);
-                                     setEditItem({});
-                                 });
-                             } else {
+    if (!field) return null;
 
-                                 const num: number = form.values[fieldId].findIndex((obj: any) => obj.id === item.id);
-                                 if (num !== -1) {
-                                     form.removeListItem(fieldId, num)
-                                 }
-                             }
-                         }}
-                         enterEdit={(item: any) => {
-                             setOpenForm(true);
-                             setEditItem(item);
-                         }}/>
-    );
+    const dateColIds = field.config?.cols
+        ?.filter((col) => col.type === "DATE")
+        .map((col) => col.id) ?? [];
 
-    const handleCancelEdit = (_item: any | null) => {
-        setOpenForm(false)
-        setEditItem({})
-    };
+    const defaultEditItem = field.config?.cols?.reduce((acc, item) => {
+        acc[item.id] = item.default ?? "";
+        return acc;
+    }, {} as Record<string, any>);
 
-
-    const handleSubmit = (event: any) => {
-        if (field.config?.action) {
-            const formData = new FormData();
-            Object.entries(event).map(([key, value]) => {
-
-                if (value instanceof Date) {
-                    // @ts-ignore
-                    formData.append(key, value ? (Date.parse(value.toDateString()) / 1000) : 0);
-                    return;
-                }
-                if (value instanceof File) {
-                    formData.append(key, value);
-                    return;
-                }
-                if (typeof value === "object") {
-                    // @ts-ignore
-                    formData.append(key, value?.value ?? "invalid option");
-                    return;
-                }
-
-                // @ts-ignore
-                formData.append(key, value);
-            })
-
-
-            axiosClient.post(field.config.action, formData)
-                .then((response) => {
-                    form.setFieldValue(fieldId, response.data ?? []);
-                    showNotification({
-                        title: tr("success"),
-                        icon: <IconCheck/>,
-                        message: "",
-                        autoClose: 5000,
-                    });
-                    setOpenForm(false);
-                    setEditItem({});
-                })
-                .catch((error) => {
-                    setOpenForm(false);
-                    setEditItem({});
-                    if (error.response.status === 500) {
-                        showNotification({
-                            title: tr("server.error"),
-                            icon: <IconCheck/>,
-                            message: "",
-                            color: 'red',
-                            autoClose: 5000,
-                        });
-                    }
-                    if (error.response.status === 422) {
-                        Object.keys(error?.response?.data?.errors ?? {}).map((key: string) => {
-                            showNotification({
-                                title: tr("claim." + key + ".error"),
-                                icon: <IconCheck/>,
-                                message: "",
-                                color: 'red',
-                                autoClose: 5000,
-                            });
-                        });
-
-                    }
-
-                }).finally(() => {
-                setOpenForm(false);
-                setEditItem({});
-            });
-        } else {
-            const newData = form.values[fieldId].map((item: any) => {
-                if (event.id === item.id) {
-                    return {...event};
-                }
-                return item;
-            });
-
-            if (event.created) {
-                event.id = generateUniqueId();
-                event.created = false;
-                newData.push(event);
-            }
-
-            form.setFieldValue(fieldId, newData);
-            forceUpdate();
-            setOpenForm(false);
-            setEditItem({});
-        }
+    const handleCancelEdit = () => {
+        setOpenForm(false);
+        setEditItem(null);
     };
 
     const generateUniqueId = (): number => {
-        const existingIds = new Set<number>(form.values[fieldId].map((item: any) => item.id));
+        const existingIds = new Set<number>((form.values[fieldId] ?? []).map((item: any) => item.id));
         let newId: number;
         do {
             newId = Math.floor(Math.random() * 1000000);
         } while (existingIds.has(newId));
         return newId;
     };
+
     const enterEdit = (item: any) => {
         setOpenForm(true);
         setEditItem(item);
     };
 
     const createRecord = () => {
-        enterEdit({...defaultEditItem, created: true})
+        enterEdit({ ...defaultEditItem, created: true });
     };
 
-    const data: any[] = (field.state === "VIEWONLY" ? field.value ?? [] : (form.values[fieldId] ?? [])).map((item: any) => {
-        (dateColId ?? []).map((id) => {
-            id = id ?? "";
-            if (typeof item[id] == "object") {
-                return;
-            }
-            item[id] = new Date(item[id] * 1000);
-        })
-        return item;
-    }) as any[];
-    return <>
-        <IntlProvider locale="en-GB">
-            <Grid
-                data={data}
-                resizable={true}
-                style={{
-                    minHeight: "15.2em",
-                    maxHeight: "30em"
-                }}
-                size={"small"}
-            >
-                {field.state != "VIEWONLY" && <GridToolbar>
-                    <Button
-                        size={"xs"}
-                        color={"green"}
-                        onClick={() => createRecord()}
-                        disabled={!(field.state === "EDITABLE" || field.state === "ADDABLE")}
-                    >
-                        {tr("table.add.record")}
-                    </Button>
-                </GridToolbar>}
-                {field?.config?.cols?.map((col: ITableColl, index) => {
+    const handleSubmit = async (event: any) => {
+        if (field.config?.action) {
+            const formData = new FormData();
 
-                    if (col.state === "HIDDEN") {
-                        return null;
-                    }
-                    const props: GridColumnProps = {
-                        field: col.id,
-                        title: tr(`column.${col.id}.title`),
-                    }
-                    if (col.type === "SELECT") {
-                        props.field = col.id + ".label"
-                    }
-
-                    if (col.state === "VIEWONLY" && col.expression) {
-                        props.cells = {
-                            data: (props: GridCustomCellProps) => {
-                                return (<td {...props.tdProps}>
-                                    {formatNumber(evaluator.evaluate(col.expression ?? "", props.dataItem), "n2").toLocaleString()}
-                                </td>);
-                            },
-                            footerCell: (props: GridCustomFooterCellProps) => {
-                                if (!col.aggregate) {
-                                    return null;
-                                }
-                                const summ: number = data.reduce((acc: number, item: any) => {
-                                        return acc += evaluator.evaluate(col.expression ?? "", item);
-
-                                    },
-                                    0);
-                                return (<td {...props.tdProps}>
-                                    {formatNumber(summ, "n2").toLocaleString()}
-                                </td>);
-                            }
-                        }
-                    }
-                    return (<Column {...props}
-                                    key={index}
-                                    format={col.type === "DATE" ? '{0:d}' : '{0:N2}'}
-                    />)
-                })
+            Object.entries(event).forEach(([key, value]) => {
+                if (value instanceof Date) {
+                    formData.append(key, Math.floor(value.getTime() / 1000).toString());
+                } else if (value instanceof File) {
+                    formData.append(key, value);
+                } else if (value && typeof value === "object" && "value" in value) {
+                    formData.append(key, (value.value ?? "invalid").toString());
+                } else {
+                    formData.append(key, value !== undefined && value !== null ? value.toString() : "");
                 }
-                {field.state === "EDITABLE" &&
-                    <Column width={80} locked={true} resizable={false} title={tr("table.actions")}
-                            cells={{data: MyEditCommandCell}}/>}
-            </Grid>
-            {openForm &&
-                <GenerateEditForm cancelEdit={handleCancelEdit} onSubmit={handleSubmit} item={editItem}
-                                  fieldId={fieldId}/>}
-            {field.error && <Text c={"red"} size={"sm"}>{field.error}</Text>}
-        </IntlProvider>
-    </>
-}
+            });
+
+            try {
+                const response = await axiosClient.post(field.config.action, formData);
+                form.setFieldValue(fieldId, response.data ?? []);
+                //@ts-ignore
+                showNotification({ title: tr("success"), icon: <IconCheck />, autoClose: 5000 });
+            } catch (error: any) {
+                const status = error?.response?.status;
+                if (status === 500) {
+                    //@ts-ignore
+                    showNotification({ title: tr("server.error"), color: "red", icon: <IconCheck />, autoClose: 5000 });
+                } else if (status === 422) {
+                    Object.keys(error?.response?.data?.errors ?? {}).forEach((key) => {
+                        //@ts-ignore
+                        showNotification({
+                            title: tr(`${key}.error`),
+                            color: "red",
+                            icon: <IconCheck />,
+                            autoClose: 5000,
+                        });
+                    });
+                }
+            } finally {
+                setOpenForm(false);
+                setEditItem(null);
+            }
+        } else {
+            // local edit
+            const newData = (form.values[fieldId] ?? []).map((item: any) => (event.id === item.id ? event : item));
+            if (event.created) {
+                event.id = generateUniqueId();
+                delete event.created;
+                newData.push(event);
+            }
+            form.setFieldValue(fieldId, newData);
+            forceUpdate();
+            setOpenForm(false);
+            setEditItem(null);
+        }
+    };
+
+    const data: any[] = (field.state === "VIEWONLY" ? field.value ?? [] : form.values[fieldId] ?? []).map((item: any) => {
+        dateColIds.forEach((id) => {
+            if (id && typeof item[id] !== "object") item[id] = new Date(item[id] * 1000);
+        });
+        return item;
+    });
+
+    // @ts-ignore
+    return (
+        <>
+            <ScrollArea style={{ maxHeight: 400 }}>
+                <Table striped highlightOnHover>
+                    <thead>
+                    <tr>
+                        {field.config?.cols?.map((col, index) =>
+                            col.state !== "HIDDEN" ? (
+                                <th key={index}>{tr(`column.${col.id}.title`)}</th>
+                            ) : null
+                        )}
+                        {(field.state === "EDITABLE" || field.state === "ADDABLE") && <th>{tr("table.actions")}</th>}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {data.map((item, rowIndex) => (
+                        <tr key={rowIndex}>
+                            {field.config?.cols?.map((col, colIndex) => {
+                                if (col.state === "HIDDEN") return null;
+                                let val = item[col.id];
+                                if (col.state === "VIEWONLY" && col.expression) {
+                                    val = evaluator.evaluate(col.expression ?? "", item);
+                                } else if (col.type === "DATE" && val instanceof Date) {
+                                    val = val.toLocaleDateString();
+                                }
+                                return <td key={colIndex}>{val}</td>;
+                            })}
+                            {(field.state === "EDITABLE" || field.state === "ADDABLE") && (
+                                <td>
+                                    <Group >
+                                        <Button size="xs" onClick={() => enterEdit(item)}>
+                                            {tr("edit")}
+                                        </Button>
+                                        <Button
+                                            size="xs"
+                                            color="red"
+                                            onClick={() => {
+                                                const index = form.values[fieldId].findIndex((i: any) => i.id === item.id);
+                                                if (index !== -1) form.removeListItem(fieldId, index);
+                                                forceUpdate();
+                                            }}
+                                        >
+                                            {tr("delete")}
+                                        </Button>
+                                    </Group>
+                                </td>
+                            )}
+                        </tr>
+                    ))}
+                    </tbody>
+                </Table>
+            </ScrollArea>
+
+            {(field.state === "EDITABLE" || field.state === "ADDABLE") && (
+                <Button mt="sm" color="green" size="xs" onClick={createRecord}>
+                    {tr("table.add.record")}
+                </Button>
+            )}
+
+            <Modal opened={openForm} onClose={handleCancelEdit} title={tr("edit.record")} size="lg">
+                {editItem && (
+                    <GenerateEditForm item={editItem} fieldId={fieldId} onSubmit={handleSubmit} cancelEdit={handleCancelEdit} />
+                )}
+            </Modal>
+
+            {field.error && (
+                <Text color="red" size="sm" mt="xs">
+                    {field.error}
+                </Text>
+            )}
+        </>
+    );
+};

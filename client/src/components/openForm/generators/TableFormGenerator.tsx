@@ -1,178 +1,125 @@
-import {useTranslator} from "../hooks/translator.ts";
-import {useState} from "react";
-import {Form, Field, FormElement, FieldWrapper} from '@progress/kendo-react-form';
-import {Dialog, DialogActionsBar} from "@progress/kendo-react-dialogs";
-import {Label} from "@progress/kendo-react-labels";
-import {DropDownList} from "@progress/kendo-react-dropdowns";
-import {NumericTextBox} from "@progress/kendo-react-inputs";
-import {Button} from "@mantine/core";
-import {Spinner} from "react-spinner-toolkit";
-import {TextBoxField} from "../componets/Fields/TextBoxField.tsx";
-import {DatePicker} from '@progress/kendo-react-dateinputs';
-import {SingleFileField} from "../componets/Fields/SingleFileField.tsx";
+import {type FC, useState} from "react";
+import { useTranslator } from "../hooks/translator.ts";
+import { Button, TextInput, NumberInput, Group,  FileInput, Modal } from "@mantine/core";
+import { Spinner } from "react-spinner-toolkit";
 import type {EditForm} from "../types.ts";
-import {useFormStore} from "../store/useFormStore.ts";
+import { useFormStore } from "../store/useFormStore.ts";
+import CustomSelect from "../componets/CustomSelect.tsx";
+import FormatedDateInput from "../componets/FormatedDateInput.tsx";
 
-export const GenerateEditForm = (props: EditForm) => {
-    const {item, cancelEdit, onSubmit} = props;
-    const field = useFormStore(state => state.fields[props.fieldId]);
-    const {tr} = useTranslator();
-    const [isSubmiting, setIsSubmiting] = useState<boolean>(false);
+export const GenerateEditForm: FC<EditForm> = ({ item, cancelEdit, onSubmit, fieldId }) => {
+    const { tr } = useTranslator();
+    const field = useFormStore((state) => state.fields[fieldId]);
+    const [formValues, setFormValues] = useState<any>({ ...item });
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    if (!field) return null;
+
+    const handleChange = (id: string, value: any) => {
+        setFormValues((prev: any) => ({ ...prev, [id]: value }));
+    };
+
+    const handleSubmit = async () => {
+        setIsSubmitting(true);
+        try {
+            await onSubmit(formValues);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     return (
-        <Form
-            initialValues={item}
-            onSubmit={onSubmit}
-            render={(renderProps) => (
-                <Dialog width={400} title={item?.created ? tr("table.add.record") : tr(`table.edit.record`)}
-                        onClose={() => {
-                            cancelEdit(item)
-                        }}>
-                    <FormElement>
-                        {field.config?.cols?.map((col, index) => {
-                            if (!(col.state == "EDITABLE")) {
-                                return;
-                            }
-                            switch (col.type) {
-                                case "FILE":
-                                    return <FieldWrapper key={index}>
-                                        <Field
-                                            id={col.id}
-                                            name={col.id ?? ''}
-                                            label={tr(`column.${col.id}.title`)}
-                                            component={SingleFileField}
+        <Modal
+            opened={true}
+            onClose={() => cancelEdit(item)}
+            title={item?.created ? tr("table.add.record") : tr("table.edit.record")}
+            size="lg"
+        >
+            <form
+                onSubmit={(e) => {
+                    e.preventDefault();
+                    handleSubmit();
+                }}
+            >
+                {field.config?.cols?.map((col, index) => {
+                    if (col.state !== "EDITABLE") return null;
 
-                                        />
-                                    </FieldWrapper>
+                    const value = formValues[col.id];
+                    const label = tr(`column.${col.id}.title`);
 
-                                case "DATE":
-                                    return <FieldWrapper key={index}>
-                                        <Field
-                                            id={col.id}
-                                            name={col.id ?? ''}
-                                            label={tr(`column.${col.id}.title`)}
-                                            component={DatePicker}
-                                            min={col?.min ? new Date(col?.min * 1000) : undefined}
-                                            max={col?.max ? new Date(col?.max * 1000) : undefined}
-                                            format="dd/MM/yyyy"
-                                            validator={
-                                                (value: number | undefined | null | string) => {
-                                                    if (value === undefined || value === null || value === "") {
-                                                        return tr("table.error.null");
-                                                    }
-                                                    return undefined;
-                                                }
-                                            }
-                                        />
-                                    </FieldWrapper>
+                    switch (col.type) {
+                        case "FILE":
+                            return (
+                                <FileInput
+                                    key={index}
+                                    label={label}
+                                    value={value}
+                                    onChange={(val) => handleChange(col.id, val)}
+                                />
+                            );
 
+                        case "DATE":
+                            return (
+                                <FormatedDateInput
+                                    key={index}
+                                    label={label}
+                                    value={value instanceof Date ? value : value ? new Date(value * 1000) : null}
+                                    minDate={col.min ? new Date(col.min * 1000) : undefined}
+                                    maxDate={col.max ? new Date(col.max * 1000) : undefined}
+                                    onChange={(val:any) => handleChange(col.id, val)}
+                                />
+                            );
 
-                                case "SELECT":
-                                    return <FieldWrapper key={index}>
-                                        <Label editorId={'col.id'} className={'k-form-label'}>
-                                            {tr(`column.${col.id}.title`)}
-                                        </Label>
-                                        <Field
-                                            id={col.id}
-                                            name={col.id ?? ''}
-                                            component={DropDownList}
-                                            textField={'label'}
-                                            data={ col.data ?? []}
-                                            onChange={(event) => {
-                                                Object.entries(event?.value?.data ?? {}).map(([key, value]) => {
-                                                    renderProps.onChange(key, {value: value});
-                                                });
-                                            }}
-                                            validator={
-                                                (value: number | undefined | null | string) => {
-                                                    if (value === undefined || value === null || value === "") {
-                                                        return tr("table.error.null");
-                                                    }
-                                                    return undefined;
-                                                }
-                                            }
-                                        />
-                                    </FieldWrapper>
-                                case "NUMBER":
-                                    return <FieldWrapper key={index}>
-                                        <Label editorId={'col.id'} className={'k-form-label'}>
-                                            {tr(`column.${col.id}.title`)}
-                                        </Label>
-                                        <Field
-                                            id={col.id}
-                                            name={col.id ?? ''}
-                                            component={NumericTextBox}
-                                            min={col.min}
-                                            max={col.max}
-                                            validator={(value: number | undefined | null) => {
-                                                if (value === undefined || value === null) {
-                                                    return tr("table.error.null");
-                                                }
-                                                if (col.min !== undefined && col.min !== null) {
-                                                    if (value < col.min) {
-                                                        return tr("table.error.number.min");
-                                                    }
-                                                }
-                                                if (col.max !== undefined && col.max !== null) {
-                                                    if (value > col.max) {
-                                                        return tr("table.error.number.max");
-                                                    }
-                                                }
-                                                return undefined;
-                                            }}
-                                        />
-                                    </FieldWrapper>
-                                default:
-                                    return <FieldWrapper key={index}>
-                                        <Field
-                                            id={col.id}
-                                            name={col.id ?? ''}
-                                            label={tr(`column.${col.id}.title`)}
-                                            component={TextBoxField}
-                                            validator={
-                                                (value: number | undefined | null | string) => {
-                                                    if (value === undefined || value === null || value === "") {
-                                                        return tr("table.error.null");
-                                                    }
-                                                    return undefined;
-                                                }
-                                            }
-                                        />
-                                    </FieldWrapper>
-                            }
-                        })}
-                    </FormElement>
-                    <DialogActionsBar layout="start">
-                        <Button
-                            type={'submit'}
-                            disabled={renderProps.allowSubmit}
-                            onClick={(event) => {
-                                if (!isSubmiting && renderProps.allowSubmit) {
-                                    setIsSubmiting(true);
-                                    renderProps.onSubmit(event);
-                                }
-                            }}
-                            leftSection={isSubmiting && <Spinner
-                                size={25}
-                                color="#007aff"
-                                loading={true}
-                                shape="circle"
-                            />}
-                            color={item.created ? "green" : undefined}
+                        case "SELECT":
+                            return (
+                                <CustomSelect
+                                    key={index}
+                                    label={label}
+                                    value={value?.value ?? value}
+                                    data={col.data ?? []}
+                                    onChange={(val) => handleChange(col.id, val)}
+                                />
+                            );
 
-                        >
-                            {item.created ? tr("table.add.record") : tr("table.update.record")}
-                        </Button>
-                        <Button
-                            color={"red"}
-                            onClick={() => {
-                                cancelEdit(item)
-                            }}>
-                            {tr("edit.cancel")}
-                        </Button>
-                    </DialogActionsBar>
-                </Dialog>
-            )
-            }
-        />);
-}
+                        case "NUMBER":
+                            return (
+                                <NumberInput
+                                    key={index}
+                                    label={label}
+                                    value={value}
+                                    min={col.min}
+                                    max={col.max}
+                                    onChange={(val) => handleChange(col.id, val)}
+                                />
+                            );
+
+                        default:
+                            return (
+                                <TextInput
+                                    key={index}
+                                    label={label}
+                                    value={value ?? ""}
+                                    onChange={(e) => handleChange(col.id, e.currentTarget.value)}
+                                />
+                            );
+                    }
+                })}
+
+                <Group  justify="space-between"  mt="md">
+                    <Button
+                        type="submit"
+                        color={item.created ? "green" : undefined}
+                        leftSection={isSubmitting && <Spinner size={25} color="#007aff" loading />}
+                        disabled={isSubmitting}
+                    >
+                        {item.created ? tr("table.add.record") : tr("table.update.record")}
+                    </Button>
+
+                    <Button color="red" onClick={() => cancelEdit(item)}>
+                        {tr("edit.cancel")}
+                    </Button>
+                </Group>
+            </form>
+        </Modal>
+    );
+};

@@ -1,5 +1,6 @@
 import {create, type StoreApi, type UseBoundStore} from "zustand";
 import type {MantineColor} from "@mantine/core";
+import type {SelectItem} from "../types.ts";
 
 export interface IField {
     state: "EDITABLE" | "VIEW" | "HIDDEN" | "VIEWONLY" | "TABLE" | "ADDABLE" ;
@@ -27,15 +28,10 @@ export interface IFieldConfig {
     isMandatory?: string[]; // not used
     action?: string; // endpoint to call when editing tables on server side
 }
-export type TableSelectItem = {
-    id: number,
-    label: string,
-    data: Record<string, string>,
-}
 export interface ITableColl {
     type: "NUMBER" | "SELECT" | "DATE" | "TEXT"  | "FILE",
     state: "EDITABLE" | "VIEW" | "HIDDEN" | "VIEWONLY",
-    data?: TableSelectItem[],
+    data?: SelectItem[],
     loadData?: string[],
     id: string,
     expression?: string | null ,

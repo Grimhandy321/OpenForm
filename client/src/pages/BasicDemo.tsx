@@ -130,7 +130,7 @@ const deffinition: FormDefinition = {
         "parts": {
             "state": "EDITABLE",
             "type": "GROUP",
-            "value": ["claimParts"],
+            "value": ["parts"],
             "config": {
                 "title": "Parts",
                 "colls": 12
@@ -139,7 +139,7 @@ const deffinition: FormDefinition = {
         "files": {
             "state": "EDITABLE",
             "type": "GROUP",
-            "value": ["claimFiles"],
+            "value": ["Files"],
             "config": {
                 "title": "Attachments",
                 "colls": 12
