@@ -1,5 +1,5 @@
 import {type FC, useState, useEffect} from "react";
-import {type FormDefinition, useFormStore} from "../store/useFormStore.ts";
+import {extractFieldIds, type FormDefinition, useFormStore} from "../store/useFormStore.ts";
 import {type FieldComponents, useComponentsStore} from "../store/useComponentsStore.tsx";
 import {ExpressionEvaluator} from "../store/ExpressionEvaluator.ts";
 import {formatToUTCDate} from "../helpers.ts";
@@ -156,35 +156,71 @@ const setGroupHidden = (groupId: string, hidden: boolean) => {
     });
 };
 
+export const visibilityCheck = (fields:  string[] | string[][]): boolean => {
+    let atLeastOne = false;
+
+    const checkField = (key: string) => {
+        const field = useFormStore.getState().fields[key];
+        if (field?.value !== undefined && field?.state !== "HIDDEN") {
+            atLeastOne = true;
+        }
+    };
+
+    if (Array.isArray(fields[0])) {
+        (fields as string[][]).forEach((fieldArray) => {
+            if (atLeastOne) return;
+            fieldArray.forEach((key) => {
+                if (atLeastOne) return;
+                checkField(key);
+            });
+        });
+    } else {
+        (fields as string[]).forEach((key) => {
+            if (atLeastOne) return;
+            checkField(key);
+        });
+    }
+
+    return atLeastOne;
+}
+
+
+
 export const GenerateGroup: FC<{ groupId: string; form: ReturnType<typeof useForm> }> = ({groupId, form}) => {
     const group = useFormStore().groups[groupId];
     const {tr} = useTranslator();
-
     if (!group || group.state === "HIDDEN") return null;
 
+    if (!visibilityCheck(extractFieldIds(group))) {
+        return null
+    }
+
+
     if (group.type === "TABS") {
-        const tabs = group.value as Record<string, string[]>;
+        const tabs = group.value as Record<string, string[] | (string[])[]>;
+
 
         return (
-            <Grid.Col span={{base: 12, sm: group.config?.colls ?? 6}}>
+            <Grid.Col span={group.config?.colls ?? 6}>
                 <Container px="0.3em" mx="0px" size="1000rem">
                     <Paper my="xs" shadow="xs" withBorder>
                         <Tabs defaultValue={Object.keys(tabs)[0]} keepMounted>
                             <Tabs.List>
-                                {Object.keys(tabs).map((key) => (
-                                    <Tabs.Tab key={key} value={key}>
-                                        {tr(key)}
-                                    </Tabs.Tab>
-                                ))}
+                                {Object.entries(tabs).map(([key, value]) => {
+                                    return (
+                                        visibilityCheck(value) && <Tabs.Tab key={key} value={key}>
+                                            {tr(key)}
+                                        </Tabs.Tab>
+                                    );
+                                })}
                             </Tabs.List>
 
-                            {Object.entries(tabs).map(([key, value]) => (
-                                <Tabs.Panel key={key} value={key} p={'sm'}>
-                                    {value.map((field: string) => (
-                                        <GenerateField key={field} fieldId={field} form={form}/>
-                                    ))}
-                                </Tabs.Panel>
-                            ))}
+                            {Object.entries(tabs).map(([key, value]) => {
+                                return (<Tabs.Panel key={key} value={key} p={'sm'}>
+                                        <RenderFields value={value} form={form}/>
+                                    </Tabs.Panel>
+                                )
+                            })}
                         </Tabs>
                     </Paper>
                 </Container>
@@ -198,12 +234,41 @@ export const GenerateGroup: FC<{ groupId: string; form: ReturnType<typeof useFor
             title={group.config?.title ?? groupId}
             collabsable={group.config?.collabsable ?? false}
         >
-            {(group.value as string[]).map((field: string) => (
-                <GenerateField key={field} fieldId={field} form={form}/>
-            ))}
+            <RenderFields value={group.value as string[]|string[][] } form={form}/>
         </FormInputElementWraper>
     );
 };
+
+
+export const RenderFields: FC<{value: string[]|string[][] ,form: any}> = ({value,form})=> {
+    if (!visibilityCheck(value)) {
+        return null;
+    }
+
+    const isArrayOfArrays = Array.isArray(value) && Array.isArray(value[0]);
+
+    if (isArrayOfArrays) {
+        return (
+            <Grid>
+                {(value as string[][]).map((row, rowIndex) => (
+                    <Grid.Col span={12/(value?.length ?? 1)} key={rowIndex} >
+                        {row.map((field) => (
+                            <GenerateField key={field} fieldId={field} form={form} />
+                        ))}
+                    </Grid.Col>
+                ))}
+            </Grid>
+        );
+    } else {
+        return (
+            <>
+                {(value as string[]).map((field) => (
+                    <GenerateField key={field} fieldId={field} form={form} />
+                ))}
+            </>
+        );
+    }
+}
 
 export const BasicFormGenerator: FC<{
     handleSubmit: (data: object, action?: string) => any;
@@ -219,9 +284,7 @@ export const BasicFormGenerator: FC<{
         Object.keys(groups).forEach((groupKey) => {
             const group = store.groups[groupKey];
             if (!group || group.state === "HIDDEN") return;
-            const fields = Array.isArray(group.value)
-                ? group.value
-                : Object.values(group.value).flat();
+            const fields = extractFieldIds(group)
 
             fields.forEach((field) => {
                 const errors = validateField(field,form, store);

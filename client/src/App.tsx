@@ -3,6 +3,20 @@ import {Routes,Route, BrowserRouter} from "react-router-dom";
 import {BasicDemo} from "./pages/BasicDemo.tsx";
 import {Layout} from "./pages/Layout.tsx";
 import {StepDemo} from "./pages/StepDemo.tsx";
+import i18next from "i18next";
+import {initReactI18next} from 'react-i18next';
+import {fallbackLanguage} from "./components/openForm/hooks/translator.ts";
+
+i18next
+    .use(initReactI18next)
+    .init({
+        lng: fallbackLanguage,
+        debug: false,
+        interpolation: {
+            escapeValue: false
+        },
+    }).then(() => {
+});
 
 
 function App() {

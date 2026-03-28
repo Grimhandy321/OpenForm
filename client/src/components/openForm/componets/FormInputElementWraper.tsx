@@ -46,7 +46,7 @@ export const FormInputElementWraper: FC<FormInputElementWraper.Props> = ({
     const [opened, { toggle }] = useDisclosure(true);
 
     return (
-        <Grid.Col span={{ base: 12, sm: colls ? colls : 6 }}>
+        <Grid.Col span={colls ? colls : 6 }>
             <Container px={"0.3em"} mx={"0px"} size={size ? size : "1000rem"}>
                 <Paper my={"xs"} shadow={"xs"} withBorder>
                     <Group justify="space-between" gap="sm"   className={`${classes.formWraperBoxTitle} ${className || ""}`} >

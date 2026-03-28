@@ -12,12 +12,12 @@ const deffinition: FormDefinition = {
         },
         "number": {
             "state": "VIEW",
-            "value": "EWC-DEMO-001",
+            "value": "001",
             "type": "STRING"
         },
         "policyNumber": {
             "state": "VIEW",
-            "value": "POL-2026-0001",
+            "value": "0001",
             "type": "STRING"
         },
         "plate": {
@@ -156,8 +156,8 @@ const deffinition: FormDefinition = {
         }
     },
     "buttons": [
-        {"id": "save", "value": "Save", "color": "blue" ,type: "DRAFT"},
-        {"id": "submit", "value": "Submit", "color": "green",type: "VALIDATION"}
+        {"id": "save", "value": "Save", "color": "blue" },
+        {"id": "submit", "value": "Submit", "color": "green"}
     ],
 }
 
@@ -170,7 +170,7 @@ export const BasicDemo = () => {
             console.log("Submitting", data);
         }
     };
-    return <Container size={"xl"} >
-        <FormGenerator definition={deffinition} handleSubmit={handleSubmit} />
+    return <Container fluid  bg={"blue"} >
+        <FormGenerator  definition={deffinition} handleSubmit={handleSubmit} />
     </Container>;
 }
