@@ -130,7 +130,7 @@ export interface TFormStore {
     initializeFrom: (
         data: FormDefinition
     ) => void;
-};
+}
 
 
 export const useFormStore: UseBoundStore<StoreApi<TFormStore>> = create<TFormStore>((set, get) => ({
