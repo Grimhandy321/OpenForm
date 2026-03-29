@@ -57,7 +57,7 @@ Defines submit/action buttons shown below the form.
 All fields share a common base structure:
 
 ```ts
-interface IBaseField {
+interface IField {
     state?: "EDITABLE" | "VIEW" | "HIDDEN" | "VIEWONLY" | "TABLE" | "ADDABLE";
     validators?: string[];
     error?: string;
