@@ -58,15 +58,6 @@ const deffinition: FormDefinition = {
             "value": 21,
             "type": "NUMBER"
         },
-        "Abstrakt": {
-            state: "EDITABLE",
-            type: "TEXTAREA",
-            value: "OpenForm – systém pro automatickou generaci a validaci webových formulářů\n" +
-                "Projekt umožňuje jednotně definovat strukturu formulářů a validační pravidla.\n" +
-                "Frontend v Reactu generuje formuláře z JSON konfigurace, backend v PHP zajišťuje serverovou validaci.\n" +
-                "Výsledkem je funkční prototyp používatelný na obou stranách aplikace.\n" +
-                "Řešení zjednodušuje vývoj, snižuje duplicitu kódu a zajišťuje konzistentní práci s formuláři. \n"
-        },
         "Parts": {
             "state": "EDITABLE",
             "value": [
@@ -115,14 +106,6 @@ const deffinition: FormDefinition = {
             "config": {
                 "title": "Incident Info",
                 "colls": 6
-            }
-        }, "Abstrakt": {
-            "state": "EDITABLE",
-            "type": "GROUP",
-            "value": ["Abstrakt"],
-            "config": {
-                "title": "Abstrakt",
-                "colls": 8
             }
         },
         "dates": {

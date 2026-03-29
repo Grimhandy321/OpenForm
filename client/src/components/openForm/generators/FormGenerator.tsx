@@ -351,7 +351,8 @@ export const FormGenerator: FC<{
     components?: FieldComponents;
     handleSubmit: (data: object, action?: string) => any;
     cascadeLoderFn?: CascadeLoaderFn;
-}> = ({definition, components, handleSubmit, cascadeLoderFn}) => {
+    [p: string]: any;
+}> = ({definition, components, handleSubmit, cascadeLoderFn,rest}) => {
     const componentsStore = useComponentsStore();
     const form = useForm({});
     const store = useFormStore();
@@ -384,11 +385,11 @@ export const FormGenerator: FC<{
 
     if (!store.steps || Object.keys(store.steps).length === 0) {
         return (
-            <BasicFormGenerator handleSubmit={handleSubmit} form={form}/>
+            <BasicFormGenerator handleSubmit={handleSubmit} form={form} {...rest}/>
         );
     } else {
         return (
-            <StepFromGenerator handleSubmit={handleSubmit} form={form}/>
+            <StepFromGenerator handleSubmit={handleSubmit} form={form}  {...rest} />
         );
     }
 };

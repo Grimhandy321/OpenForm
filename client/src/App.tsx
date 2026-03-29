@@ -6,6 +6,7 @@ import {StepDemo} from "./pages/StepDemo.tsx";
 import i18next from "i18next";
 import {initReactI18next} from 'react-i18next';
 import {fallbackLanguage} from "./components/openForm/hooks/translator.ts";
+import {Plakat} from "./pages/Plakat.tsx";
 
 i18next
     .use(initReactI18next)
@@ -32,6 +33,7 @@ function App() {
                   <Route element={<Layout />}>
                       <Route path="/" element={"Home"} />
                       <Route path="/demo" element={<BasicDemo/>} />
+                      <Route path="/plakat" element={<Plakat/>} />
                       <Route path="/stepdemo" element={<StepDemo/>} />
                   </Route>
                   <Route path="*" element={"Not Found "} />

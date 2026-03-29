@@ -40,6 +40,12 @@ export const Layout = () => {
                 to="/stepdemo"
                 active={location.pathname === "/stepdemo"}
             />
+            <NavLink
+                label="Plakat"
+                component={Link}
+                to="/plakat"
+                active={location.pathname === "/plakat"}
+            />
         </AppShell.Navbar>
 
         <AppShell.Main w={"100%"} >
