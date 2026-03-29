@@ -1,13 +1,13 @@
 import { create, type StoreApi, type UseBoundStore } from "zustand";
 import type { FC } from "react";
-import type { FieldConfig } from "../types.ts";
 import { Checkbox, NumberInput, Textarea, TextInput } from "@mantine/core";
 import CustomSelect from "../componets/CustomSelect.tsx";
 import FormatedDateInput from "../componets/FormatedDateInput.tsx";
 import { TableGenerator } from "../generators/TableGenerator.tsx";
 import {useForm} from "@mantine/form";
+import type {IFieldConfig} from "./useFormStore.ts";
 
-type FieldComponentProps = FieldConfig & { fieldId: string; form: ReturnType<typeof useForm>, [key: string]: any; };
+type FieldComponentProps = IFieldConfig & { fieldId: string; form: ReturnType<typeof useForm>, [key: string]: any; };
 
 export type FieldComponents = {
     NUMBER: FC<FieldComponentProps>;
@@ -47,13 +47,13 @@ export const useComponentsStore: UseBoundStore<
     StoreApi<TComponentsStore>
 > = create<TComponentsStore>((set) => ({
     components: {
-        NUMBER: (props) => <NumberInput {...props} />,
-        TEXT: (props) => <TextInput {...props} />,
-        STRING: (props) => <TextInput {...props} />,
-        TEXTAREA: (props) => <Textarea {...props} autosize />,
+        NUMBER: (props) => <NumberInput {...props as any} />,
+        TEXT: (props) => <TextInput {...props as any}  />,
+        STRING: (props) => <TextInput {...props as any} />,
+        TEXTAREA: (props) => <Textarea {...props as any} autosize />,
         SELECT: (props) => <CustomSelect {...props} />,
         DATE: (props) => <FormatedDateInput {...props} />,
-        BOOLEAN: (props) => <Checkbox pt={"xs"} {...props} />,
+        BOOLEAN: (props) => <Checkbox pt={"xs"} {...props as any} />,
         TABLE: (props) => <TableGenerator {...props} />,
         CUSTOM: {},
     },

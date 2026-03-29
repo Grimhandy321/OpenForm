@@ -1,4 +1,4 @@
-import type { FieldConfig, SelectItem } from "../types.ts";
+import type {FieldConfig, SelectItem} from "../types.ts";
 import { type ComboboxItem, Select } from "@mantine/core";
 
 interface CustomSelectProps extends Omit<FieldConfig, "data" | "value" | "onChange"> {

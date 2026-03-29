@@ -8,23 +8,7 @@ export interface SelectItem{
 }
 
 
-export type FormGroup = {
-    state?: "EDITABLE" | "HIDDEN";
-    type: "GROUP";
-    value?: string[]; // FieldIds
-    config?: {
-        colls?: number,
-        title?: string;
-        collabsable?: boolean;
-    }
 
-}
-export type FormStep =  Record<string, FormGroup | string>;
-
-export type Message =  {
-    type: "error" | "ok" | "green";
-    message: string;
-}
 
 export interface FieldConfig<TValue = any, TData = any> {
     label?: string;
