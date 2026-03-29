@@ -23,11 +23,6 @@ i18next
 function App() {
 
     const theme = createTheme({
-        fontSizes:{
-            xs:"15px",
-            sm:"20px",
-            md:"25px"
-        }
     })
 
   return (
