@@ -135,6 +135,7 @@ export const GenerateField: FC<{ fieldId: string; form: ReturnType<typeof useFor
 
     const inputProps = useFieldProps(fieldId, form);
 
+    console.log({fieldId, ...field})
     if (field.type === "CUSTOM") {
         const CustomComponent = components.CUSTOM[field.component || "default"];
         if (!CustomComponent) return null;
@@ -349,7 +350,7 @@ export const BasicFormGenerator: FC<{
 // ====================== FORM GENERATOR ======================
 export const FormGenerator: FC<{
     definition: FormDefinition;
-    components?: FieldComponents;
+    components?: Partial<FieldComponents>;
     handleSubmit: (data: object, action?: string) => any;
     cascadeLoderFn?: CascadeLoaderFn;
     [p: string]: any;
@@ -363,6 +364,9 @@ export const FormGenerator: FC<{
     // initialize
     useEffect(() => {
         componentsStore.updateComponents(components ?? {});
+        Object.entries(components?.CUSTOM ?? {}).map(([key,value]) => {
+            componentsStore.updateCustomComponent(key,value);
+        })
         store.initializeFrom(definition);
         if (cascadeLoderFn) {
             setLoader(cascadeLoderFn)

@@ -7,6 +7,29 @@ import {Container} from "@mantine/core";
 
 const deffinition: FormDefinition = {
     fields: {
+        featureCards: {
+            state: "EDITABLE",
+            type: "CUSTOM",
+            component: "FeatureCards",
+        },
+
+        architectureStack: {
+            state: "EDITABLE",
+            type: "CUSTOM",
+            component: "ArchitectureStack",
+        },
+
+        codePreview: {
+            state: "EDITABLE",
+            type: "CUSTOM",
+            component: "CodePreview",
+        },
+
+        statsPanel: {
+            state: "EDITABLE",
+            type: "CUSTOM",
+            component: "StatsPanel",
+        },
         title: {
             state: "EDITABLE",
             type: "TEXT",
@@ -240,6 +263,16 @@ const deffinition: FormDefinition = {
                 colls: 18,
             },
         },
+
+        PosterShowcase: {
+            state: "EDITABLE",
+            type: "GROUP",
+            value: [["statsPanel","featureCards","architectureStack"], ["codePreview"]],
+            config: {
+                title: "Custom Components Showcase",
+                colls: 18,
+            },
+        },
     },
 
     buttons: [
@@ -250,6 +283,7 @@ const deffinition: FormDefinition = {
 
 export const Plakat = () => {
     const formRef = useRef<HTMLDivElement>(null);
+
 
     const downloadFormAsPng = async () => {
         if (!formRef.current) return;
