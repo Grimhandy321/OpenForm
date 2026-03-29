@@ -1,6 +1,5 @@
 import {type FormDefinition} from "../components/openForm/store/useFormStore";
 import {FormGenerator} from "../components/openForm/generators/FormGenerator.tsx";
-import {Container} from "@mantine/core";
 
 
 const deffinition: FormDefinition = {
@@ -59,6 +58,15 @@ const deffinition: FormDefinition = {
             "value": 21,
             "type": "NUMBER"
         },
+        "Abstrakt": {
+            state: "EDITABLE",
+            type: "TEXTAREA",
+            value: "OpenForm – systém pro automatickou generaci a validaci webových formulářů\n" +
+                "Projekt umožňuje jednotně definovat strukturu formulářů a validační pravidla.\n" +
+                "Frontend v Reactu generuje formuláře z JSON konfigurace, backend v PHP zajišťuje serverovou validaci.\n" +
+                "Výsledkem je funkční prototyp používatelný na obou stranách aplikace.\n" +
+                "Řešení zjednodušuje vývoj, snižuje duplicitu kódu a zajišťuje konzistentní práci s formuláři. \n"
+        },
         "Parts": {
             "state": "EDITABLE",
             "value": [
@@ -108,6 +116,14 @@ const deffinition: FormDefinition = {
                 "title": "Incident Info",
                 "colls": 6
             }
+        }, "Abstrakt": {
+            "state": "EDITABLE",
+            "type": "GROUP",
+            "value": ["Abstrakt"],
+            "config": {
+                "title": "Abstrakt",
+                "colls": 8
+            }
         },
         "dates": {
             "state": "EDITABLE",
@@ -118,15 +134,6 @@ const deffinition: FormDefinition = {
                 "colls": 6
             }
         },
-        "costs": {
-            "state": "EDITABLE",
-            "type": "GROUP",
-            "value": ["currency", "vat"],
-            "config": {
-                "title": "Costs",
-                "colls": 6
-            }
-        },
         "parts": {
             "state": "EDITABLE",
             "type": "GROUP",
@@ -134,6 +141,15 @@ const deffinition: FormDefinition = {
             "config": {
                 "title": "Parts",
                 "colls": 12
+            }
+        },
+        "costs": {
+            "state": "EDITABLE",
+            "type": "GROUP",
+            "value": ["currency", "vat"],
+            "config": {
+                "title": "Costs",
+                "colls": 6
             }
         },
         "files": {
@@ -153,10 +169,11 @@ const deffinition: FormDefinition = {
                 "title": "Comments",
                 "colls": 12
             }
-        }
+        },
+
     },
     "buttons": [
-        {"id": "save", "value": "Save", "color": "blue" },
+        {"id": "save", "value": "Save", "color": "blue"},
         {"id": "submit", "value": "Submit", "color": "green"}
     ],
 }
@@ -170,7 +187,5 @@ export const BasicDemo = () => {
             console.log("Submitting", data);
         }
     };
-    return <Container fluid  bg={"blue"} >
-        <FormGenerator  definition={deffinition} handleSubmit={handleSubmit} />
-    </Container>;
+    return <FormGenerator definition={deffinition} handleSubmit={handleSubmit}/>
 }

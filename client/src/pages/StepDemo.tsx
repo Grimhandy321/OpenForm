@@ -1,4 +1,4 @@
-import {Container} from "@mantine/core";
+
 import {FormGenerator} from "../components/openForm/generators/FormGenerator.tsx";
 import type {FormDefinition} from "../components/openForm/store/useFormStore.ts";
 
@@ -263,7 +263,5 @@ export const StepDemo = () => {
     };
 
 
-    return <Container size={"xl"}>
-        <FormGenerator definition={carFormDefinition} cascadeLoderFn={demoLoader} handleSubmit={handleSubmit}/>
-    </Container>;
+    return <FormGenerator definition={carFormDefinition} cascadeLoderFn={demoLoader} handleSubmit={handleSubmit}/>
 }

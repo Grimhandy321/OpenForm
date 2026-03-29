@@ -1,6 +1,6 @@
 import {type FC, useState} from "react";
 import {Stepper, Grid, Button, Group} from "@mantine/core";
-import {useFormStore} from "../store/useFormStore.ts";
+import {extractFieldIds, useFormStore} from "../store/useFormStore.ts";
 import {useTranslator} from "../hooks/translator.ts";
 import { GenerateGroup} from "./FormGenerator.tsx";
 import {formatErrorMessage, validateField} from "../validation/ruleValidation.ts";
@@ -22,9 +22,7 @@ export const StepFromGenerator: FC<{ handleSubmit: (data: object) => any;form: R
         groups.forEach((groupKey) => {
             const group = store.groups[groupKey];
             if (!group || group.state === "HIDDEN") return;
-            const fields = Array.isArray(group.value)
-                ? group.value
-                : Object.values(group.value).flat();
+            const fields = extractFieldIds(group)
 
             fields.forEach((field) => {
                 const errors = validateField(field,form, store);
@@ -53,6 +51,7 @@ export const StepFromGenerator: FC<{ handleSubmit: (data: object) => any;form: R
     const steps = Object.entries(store.steps);
     const lastIndex = steps.length - 1;
 
+
     return (
         <>
             <Stepper active={active}>
@@ -64,9 +63,9 @@ export const StepFromGenerator: FC<{ handleSubmit: (data: object) => any;form: R
                     >
                         <StepWrapper>
                             <Grid>
-                                {step.map((item, index) => (
-                                    <GenerateGroup key={index} groupId={item} form={form} />
-                                ))}
+                                {step.map((item, index) => {
+                                    return <GenerateGroup key={index} groupId={item} form={form} />
+                                })}
                             </Grid>
                         </StepWrapper>
                     </Stepper.Step>

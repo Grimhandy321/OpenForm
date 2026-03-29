@@ -10,7 +10,7 @@ export const Layout = () => {
         header={{ height: 60 }}
         footer={{ height: 60 }}
         navbar={{ width: 180, breakpoint: "sm", collapsed: { mobile: !opened } }}
-        padding="xl"
+        padding={"xl"}
     >
         {/* HEADER */}
         <AppShell.Header bg="blue">
@@ -42,7 +42,7 @@ export const Layout = () => {
             />
         </AppShell.Navbar>
 
-        <AppShell.Main w={"100em"} >
+        <AppShell.Main w={"100%"} >
             <Outlet />
         </AppShell.Main>
 

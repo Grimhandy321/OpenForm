@@ -156,12 +156,12 @@ const setGroupHidden = (groupId: string, hidden: boolean) => {
     });
 };
 
-export const visibilityCheck = (fields:  string[] | string[][]): boolean => {
+export const visibilityCheck = (fields: string[] | string[][]): boolean => {
     let atLeastOne = false;
 
     const checkField = (key: string) => {
         const field = useFormStore.getState().fields[key];
-        if (field?.value !== undefined && field?.state !== "HIDDEN") {
+        if (field?.state !== "HIDDEN") {
             atLeastOne = true;
         }
     };
@@ -177,6 +177,7 @@ export const visibilityCheck = (fields:  string[] | string[][]): boolean => {
     } else {
         (fields as string[]).forEach((key) => {
             if (atLeastOne) return;
+
             checkField(key);
         });
     }
@@ -185,15 +186,17 @@ export const visibilityCheck = (fields:  string[] | string[][]): boolean => {
 }
 
 
-
 export const GenerateGroup: FC<{ groupId: string; form: ReturnType<typeof useForm> }> = ({groupId, form}) => {
     const group = useFormStore().groups[groupId];
     const {tr} = useTranslator();
+
+
     if (!group || group.state === "HIDDEN") return null;
 
     if (!visibilityCheck(extractFieldIds(group))) {
         return null
     }
+
 
 
     if (group.type === "TABS") {
@@ -234,13 +237,13 @@ export const GenerateGroup: FC<{ groupId: string; form: ReturnType<typeof useFor
             title={group.config?.title ?? groupId}
             collabsable={group.config?.collabsable ?? false}
         >
-            <RenderFields value={group.value as string[]|string[][] } form={form}/>
+            <RenderFields value={group.value as string[] | string[][]} form={form}/>
         </FormInputElementWraper>
     );
 };
 
 
-export const RenderFields: FC<{value: string[]|string[][] ,form: any}> = ({value,form})=> {
+export const RenderFields: FC<{ value: string[] | string[][], form: any }> = ({value, form}) => {
     if (!visibilityCheck(value)) {
         return null;
     }
@@ -251,9 +254,9 @@ export const RenderFields: FC<{value: string[]|string[][] ,form: any}> = ({value
         return (
             <Grid>
                 {(value as string[][]).map((row, rowIndex) => (
-                    <Grid.Col span={12/(value?.length ?? 1)} key={rowIndex} >
+                    <Grid.Col span={12 / (value?.length ?? 1)} key={rowIndex}>
                         {row.map((field) => (
-                            <GenerateField key={field} fieldId={field} form={form} />
+                            <GenerateField key={field} fieldId={field} form={form}/>
                         ))}
                     </Grid.Col>
                 ))}
@@ -263,7 +266,7 @@ export const RenderFields: FC<{value: string[]|string[][] ,form: any}> = ({value
         return (
             <>
                 {(value as string[]).map((field) => (
-                    <GenerateField key={field} fieldId={field} form={form} />
+                    <GenerateField key={field} fieldId={field} form={form}/>
                 ))}
             </>
         );
@@ -287,7 +290,7 @@ export const BasicFormGenerator: FC<{
             const fields = extractFieldIds(group)
 
             fields.forEach((field) => {
-                const errors = validateField(field,form, store);
+                const errors = validateField(field, form, store);
 
                 if (errors?.length) {
                     hasError = true;
@@ -348,17 +351,18 @@ export const FormGenerator: FC<{
     components?: FieldComponents;
     handleSubmit: (data: object, action?: string) => any;
     cascadeLoderFn?: CascadeLoaderFn;
-}> = ({definition, components, handleSubmit,cascadeLoderFn}) => {
+}> = ({definition, components, handleSubmit, cascadeLoderFn}) => {
     const componentsStore = useComponentsStore();
     const form = useForm({});
     const store = useFormStore();
     const {setLoader} = useCascadeStore();
 
+
     // initialize
     useEffect(() => {
         componentsStore.updateComponents(components ?? {});
         store.initializeFrom(definition);
-        if(cascadeLoderFn) {
+        if (cascadeLoderFn) {
             setLoader(cascadeLoderFn)
         }
         for (const fieldId in definition.fields) {
@@ -384,9 +388,7 @@ export const FormGenerator: FC<{
         );
     } else {
         return (
-            <Box>
-                <StepFromGenerator handleSubmit={handleSubmit} form={form}/>
-            </Box>
+            <StepFromGenerator handleSubmit={handleSubmit} form={form}/>
         );
     }
 };
