@@ -1,5 +1,6 @@
 import type { MantineColor } from "@mantine/core";
 import { create, type StoreApi, type UseBoundStore } from "zustand";
+import type {SelectItem} from "../types.ts";
 
 /* =========================================================
    Shared / Common Types
@@ -290,7 +291,7 @@ export interface ITableColl {
     /**
      * Select options for SELECT columns.
      */
-    data?: TableSelectItem[];
+    data?: SelectItem[];
 
     /**
      * Dependency field IDs for cascading select loading.

@@ -23,7 +23,11 @@ i18next
 function App() {
 
     const theme = createTheme({
-        /** Put your mantine theme override here */
+        fontSizes:{
+            xs:"15px",
+            sm:"20px",
+            md:"25px"
+        }
     })
 
   return (

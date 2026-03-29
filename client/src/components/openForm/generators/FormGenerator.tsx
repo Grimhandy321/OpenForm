@@ -17,6 +17,7 @@ import {type CascadeLoaderFn, useCascadeStore} from "../store/useCascadeStore.ts
 export const useFieldProps = (fieldId: string, form: ReturnType<typeof useForm>): FieldConfig => {
     const cascadeDropdown = useCascadeDropDown();
     const field = useFormStore((state) => state.fields[fieldId]);
+    const {tr} = useTranslator();
 
     if (!field) return {style: {display: "none"}};
     if (field.state === "HIDDEN") return {style: {display: "none"}};
@@ -24,8 +25,8 @@ export const useFieldProps = (fieldId: string, form: ReturnType<typeof useForm>)
     const value = form.values[fieldId];
 
     const returnData: FieldConfig = {
-        label: fieldId + ".label",
-        placeholder: field.state === "VIEW" ? "" : fieldId + ".placeholder",
+        label: tr(fieldId + ".label"),
+        placeholder: field.state === "VIEW" ? "" :tr(fieldId + ".placeholder"),
         disabled: field.state === "VIEW",
         readOnly: field.state === "VIEW",
         error: field.error ?? form.errors[fieldId] as string ?? undefined,
